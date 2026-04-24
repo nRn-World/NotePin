@@ -1,0 +1,6 @@
+{
+  "name": "NotePin",
+  "description": "A Chrome-extension-like annotation tool that lets you right-click anywhere to pin sticky notes directly on the page.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
