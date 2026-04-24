@@ -728,95 +728,9 @@ export default function App() {
   }, []);
 
   const updateAnchors = useCallback(() => {
-    if (!isContentScript) return;
-    const now = Date.now();
-
-    setNotes((prev) => {
-      let changed = false;
-      const next = prev.map((note) => {
-        const containerSelector = note.containerSelector;
-        const containerX = note.containerX;
-        const containerY = note.containerY;
-        if (containerSelector && isFiniteNumber(containerX) && isFiniteNumber(containerY)) {
-          let container: HTMLElement | null = null;
-          try {
-            container = document.querySelector(containerSelector) as HTMLElement | null;
-          } catch {
-            container = null;
-          }
-          if (container) {
-            const rect = container.getBoundingClientRect();
-            const newX = window.scrollX + rect.left + (containerX - container.scrollLeft);
-            const newY = window.scrollY + rect.top + (containerY - container.scrollTop);
-            if (Math.abs(newX - note.x) > 1 || Math.abs(newY - note.y) > 1) {
-              changed = true;
-              return { ...note, x: newX, y: newY };
-            }
-            return note;
-          }
-        }
-
-        if (!note.selector) return note;
-
-        let el: HTMLElement | null = null;
-        try {
-          el = document.querySelector(note.selector) as HTMLElement | null;
-        } catch {
-          el = null;
-        }
-
-        if (!el && note.anchorTag && note.anchorText) {
-          const lastAttempt = missingAnchorAttemptRef.current[note.id] || 0;
-          if (now - lastAttempt > 2000) {
-            missingAnchorAttemptRef.current[note.id] = now;
-            const found = findElementByFallback(note.anchorTag, note.anchorText);
-            if (found) {
-              const rect = found.getBoundingClientRect();
-              const newX = rect.left + window.scrollX + (note.offsetX || 0);
-              const newY = rect.top + window.scrollY + (note.offsetY || 0);
-              changed = true;
-              return { ...note, selector: getUniqueSelector(found), x: newX, y: newY };
-            }
-          }
-          return note;
-        }
-
-        if (!el) return note;
-
-        const rect = el.getBoundingClientRect();
-        const newX = rect.left + window.scrollX + (note.offsetX || 0);
-        const newY = rect.top + window.scrollY + (note.offsetY || 0);
-
-        if (!note.containerSelector) {
-          const scrollContainer = findScrollableAncestor(el);
-          if (scrollContainer) {
-            const cRect = scrollContainer.getBoundingClientRect();
-            const computedContainerX = scrollContainer.scrollLeft + ((note.x - window.scrollX) - cRect.left);
-            const computedContainerY = scrollContainer.scrollTop + ((note.y - window.scrollY) - cRect.top);
-            if (isFiniteNumber(computedContainerX) && isFiniteNumber(computedContainerY)) {
-              changed = true;
-              return {
-                ...note,
-                x: newX,
-                y: newY,
-                containerSelector: getUniqueSelector(scrollContainer),
-                containerX: computedContainerX,
-                containerY: computedContainerY,
-              };
-            }
-          }
-        }
-
-        if (Math.abs(newX - note.x) > 1 || Math.abs(newY - note.y) > 1) {
-          changed = true;
-          return { ...note, x: newX, y: newY };
-        }
-        return note;
-      });
-
-      return changed ? next : prev;
-    });
-  }, [findElementByFallback, getUniqueSelector, isContentScript]);
+    // Inaktiverad - vi vill inte att anteckningar ska följa med vid scroll
+    return;
+  }, []);
 
   const requestAnchorUpdate = useCallback(() => {
     if (anchorRafRef.current !== null) return;
@@ -924,41 +838,10 @@ export default function App() {
   const addNote = useCallback(() => {
     if (!menuPos) return;
     
-    // Find the element at the menu position to anchor to
-    let selector = pendingAnchorRef.current?.selector;
-    let offsetX = pendingAnchorRef.current?.offsetX ?? 0;
-    let offsetY = pendingAnchorRef.current?.offsetY ?? 0;
-    let containerSelector = pendingAnchorRef.current?.containerSelector;
-    let containerX = pendingAnchorRef.current?.containerX;
-    let containerY = pendingAnchorRef.current?.containerY;
-    let anchorTag = pendingAnchorRef.current?.anchorTag;
-    let anchorText = pendingAnchorRef.current?.anchorText;
-    
-    if (isContentScript && !selector && !containerSelector) {
-      const el = document.elementFromPoint(menuPos.x, menuPos.y) as HTMLElement | null;
-      if (el && el.tagName !== 'BODY' && el.tagName !== 'HTML') {
-        selector = getUniqueSelector(el);
-        const rect = el.getBoundingClientRect();
-        offsetX = (menuPos.x + window.scrollX) - (rect.left + window.scrollX);
-        offsetY = (menuPos.y + window.scrollY) - (rect.top + window.scrollY);
-        anchorTag = el.tagName.toLowerCase();
-        const raw = (el.getAttribute('aria-label') || el.textContent || '').trim().replace(/\s+/g, ' ');
-        anchorText = raw ? raw.slice(0, 80) : undefined;
-      }
-
-      const scrollContainer = findScrollableAncestor(el);
-      if (scrollContainer) {
-        containerSelector = getUniqueSelector(scrollContainer);
-        const rect = scrollContainer.getBoundingClientRect();
-        containerX = scrollContainer.scrollLeft + (menuPos.x - rect.left);
-        containerY = scrollContainer.scrollTop + (menuPos.y - rect.top);
-      }
-    }
-    
     const newNote: NoteData = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-      x: menuPos.x + window.scrollX,
-      y: menuPos.y + window.scrollY,
+      x: menuPos.x,
+      y: menuPos.y,
       width: 256,
       height: 160,
       content: '',
@@ -966,20 +849,20 @@ export default function App() {
       timestamp: Date.now(),
       url: normalizeUrl(window.location.href),
       urlTitle: document.title || t.browserTitle,
-      selector,
-      offsetX,
-      offsetY,
-      containerSelector,
-      containerX,
-      containerY,
-      anchorTag,
-      anchorText
+      // Ingen förankring - anteckningen är fri och viewport-fixad
+      selector: undefined,
+      offsetX: undefined,
+      offsetY: undefined,
+      containerSelector: undefined,
+      containerX: undefined,
+      containerY: undefined,
+      anchorTag: undefined,
+      anchorText: undefined,
     };
     
     setNotes(prev => [...prev, newNote]);
-    pendingAnchorRef.current = null;
     setMenuPos(null);
-  }, [menuPos, t, normalizeUrl, isContentScript]);
+  }, [menuPos, t, normalizeUrl]);
 
   const updateNote = (id: string, updates: Partial<NoteData>) => {
     setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
@@ -1268,10 +1151,24 @@ export default function App() {
     );
   }
 
+  // Global error handler
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error('Global error:', error.error);
+      // You can add more error handling logic here, such as logging to a server
+    };
+
+    window.addEventListener('error', handleError);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
+
   return (
     <div 
       className={`relative font-sans select-none transition-colors duration-500 ${
-        isPopup ? 'w-[400px] h-[600px] bg-[#0f172a] overflow-hidden' : isContentScript ? 'w-full h-full bg-transparent pointer-events-none' : 'w-full min-h-screen bg-[#0f172a]'
+        isPopup ? 'w-[400px] h-[600px] bg-[#0f172a] overflow-hidden' : isContentScript ? 'fixed inset-0 w-full h-full bg-transparent pointer-events-none' : 'w-full min-h-screen bg-[#0f172a]'
       } ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
       onContextMenu={isContentScript ? undefined : handleContextMenu}
     >
@@ -1859,7 +1756,9 @@ export default function App() {
         ))}
         {menuPos && (
           <ContextMenu 
-            x={menuPos.x + (isContentScript ? window.scrollX : 0)} y={menuPos.y + (isContentScript ? window.scrollY : 0)} onAddNote={addNote}
+            x={menuPos.x} 
+            y={menuPos.y} 
+            onAddNote={addNote}
             onOpenSettings={openSettingsWindow}
             onOpenAllNotes={() => setShowAllNotes(true)}
             onOpenHelp={() => setShowHelp(true)}
