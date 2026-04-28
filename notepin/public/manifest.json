@@ -29,7 +29,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["content.js", "App.js", "main.js", "main.css"],
+      "resources": ["content.js", "main.js", "main.css", "App.js"],
       "matches": ["<all_urls>"]
     }
   ]

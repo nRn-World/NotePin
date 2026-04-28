@@ -177,7 +177,7 @@ const TRANSLATIONS = {
       { t: "Crear", d: "Mantén pulsado el clic derecho durante 1 segundo en cualquier lugar para fijar una nota nueva." },
       { t: "Edición fácil", d: "Haz clic en la nota para escribir. Todo se guarda automáticamente." },
       { t: "Organizar", d: "Arrastra la barra superior para mover o la esquina para redimensionar." },
-      { t: "Capas", d: "Haz clic en una nota för att lyfta fram den (traer al frente)." },
+      { t: "Capas", d: "Haz clic en una nota para traerla al frente." },
       { t: "Seguimiento", d: "Guardamos automáticamente el enlace donde creaste cada nota." }
     ],
     browserUrl: "https://notepin.app/modern-annotation-system",
@@ -231,8 +231,8 @@ const TRANSLATIONS = {
     ],
     features: [
       { t: "Créer", d: "Maintenez le clic droit pendant 1 seconde n'importe où pour épingler une note." },
-      { t: "Édition directe", d: "Cliquez dans une note för att skriva. Tout est sauvegardé auto." },
-      { t: "Organiser", d: "Faites glisser le haut pour déplacer eller le coin för att redimensionner." },
+      { t: "Édition directe", d: "Cliquez dans une note pour écrire. Tout est sauvegardé automatiquement." },
+      { t: "Organiser", d: "Faites glisser la poignée du haut pour déplacer, ou le coin pour redimensionner." },
       { t: "Superposition", d: "Cliquez sur une note pour la mettre au premier plan." },
       { t: "Traçage", d: "Nous enregistrons le lien source pour chaque annotation." }
     ],
@@ -466,7 +466,7 @@ export default function App() {
         chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' }, (res) => {
           setMenuPos(null);
           if ((isContentScript && chrome.runtime?.lastError) || !res?.ok) {
-            alert('NotePin behöver laddas om på den här sidan. Uppdatera sidan (F5) och prova igen.');
+            console.error('NotePin needs to be reloaded on this page. Refresh (F5) and try again.');
           }
         });
         if (isPopup) window.close();
@@ -474,7 +474,7 @@ export default function App() {
       } catch {
         setMenuPos(null);
         if (isContentScript) {
-          alert('NotePin behöver laddas om på den här sidan. Uppdatera sidan (F5) och prova igen.');
+          console.error('NotePin needs to be reloaded on this page. Refresh (F5) and try again.');
         }
         if (isPopup) window.close();
         return;

@@ -23,12 +23,16 @@ reactRoot.style.transformOrigin = '0 0';
 reactRoot.style.willChange = 'transform';
 shadow.appendChild(reactRoot);
 
-const cssHref = typeof chrome !== 'undefined' && chrome.runtime?.getURL ? chrome.runtime.getURL('main.css') : '';
-if (cssHref) {
-  const cssLink = document.createElement('link');
-  cssLink.rel = 'stylesheet';
-  cssLink.href = cssHref;
-  shadow.appendChild(cssLink);
+try {
+  const cssHref = typeof chrome !== 'undefined' && chrome.runtime?.getURL ? chrome.runtime.getURL('main.css') : '';
+  if (cssHref) {
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = cssHref;
+    shadow.appendChild(cssLink);
+  }
+} catch (e) {
+  console.error('Failed to load CSS:', e);
 }
 
 let scrollRaf: number | null = null;
@@ -85,15 +89,19 @@ const findScrollableAncestor = (start: HTMLElement | null): HTMLElement | null =
 // --- Hold-to-open logic ---
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 let menuOpened = false;
+let holdStartX = 0;
+let holdStartY = 0;
 
 document.addEventListener('mousedown', (e) => {
   if (e.button !== 2) return;
   menuOpened = false;
-  
+  holdStartX = e.clientX;
+  holdStartY = e.clientY;
+
   if (holdTimer) clearTimeout(holdTimer);
-  
+
   holdTimer = setTimeout(() => {
-    const target = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+    const target = document.elementFromPoint(holdStartX, holdStartY) as HTMLElement | null;
     let anchor:
       | {
           selector?: string;
@@ -113,8 +121,8 @@ document.addEventListener('mousedown', (e) => {
       const raw = (target.getAttribute('aria-label') || target.textContent || '').trim().replace(/\s+/g, ' ');
       anchor = {
         selector: getUniqueSelector(target),
-        offsetX: e.clientX - rect.left,
-        offsetY: e.clientY - rect.top,
+        offsetX: holdStartX - rect.left,
+        offsetY: holdStartY - rect.top,
         anchorTag: target.tagName.toLowerCase(),
         anchorText: raw ? raw.slice(0, 80) : undefined,
       };
@@ -122,14 +130,14 @@ document.addEventListener('mousedown', (e) => {
       if (scrollContainer) {
         const containerRect = scrollContainer.getBoundingClientRect();
         anchor.containerSelector = getUniqueSelector(scrollContainer);
-        anchor.containerX = scrollContainer.scrollLeft + (e.clientX - containerRect.left);
-        anchor.containerY = scrollContainer.scrollTop + (e.clientY - containerRect.top);
+        anchor.containerX = scrollContainer.scrollLeft + (holdStartX - containerRect.left);
+        anchor.containerY = scrollContainer.scrollTop + (holdStartY - containerRect.top);
       }
     }
 
     menuOpened = true;
     window.dispatchEvent(new CustomEvent('noteoverlay:open-menu', {
-      detail: { x: e.clientX, y: e.clientY, anchor }
+      detail: { x: holdStartX, y: holdStartY, anchor }
     }));
   }, 1000); // 1 second
 }, true);
@@ -143,11 +151,13 @@ document.addEventListener('mouseup', (e) => {
 }, true);
 
 document.addEventListener('contextmenu', (e) => {
-  // If the menu was opened by holding, prevent the browser menu
+  // Always prevent the browser context menu - we handle it ourselves
+  e.preventDefault();
+  e.stopPropagation();
+
+  // If the menu was opened by holding, reset the flag
   if (menuOpened) {
-    e.preventDefault();
-    e.stopPropagation();
-    menuOpened = false; // Reset
+    menuOpened = false;
   }
 }, true);
 
