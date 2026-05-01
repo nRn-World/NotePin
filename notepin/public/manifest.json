@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NotePin",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Smart layer annotations for the web.",
   "permissions": ["storage", "activeTab", "scripting"],
   "action": {
@@ -29,7 +29,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["content.js", "main.js", "main.css", "App.js"],
+      "resources": ["content.js", "main.js", "main.css", "App.js", "icons/*.png"],
       "matches": ["<all_urls>"]
     }
   ]

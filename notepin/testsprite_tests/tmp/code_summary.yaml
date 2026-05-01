@@ -1,0 +1,69 @@
+version: "2"
+type: frontend
+tech_stack:
+  - TypeScript
+  - React 19
+  - Vite 6
+  - TailwindCSS 4
+  - Motion (Framer Motion)
+  - Lucide React
+routes:
+  - path: /
+    file: src/App.tsx
+    auth_required: false
+    description: Main extension popup and overlay view
+  - path: /?view=settings
+    file: src/App.tsx
+    auth_required: false
+    description: Standalone settings page
+features:
+  - name: Context Menu Note Creation
+    description: Create a note by holding right-click for 1 second on any web element
+    files:
+      - src/content.tsx
+      - src/App.tsx
+    entry_route: /
+    user_interactions:
+      - Right-click and hold on an element for 1 second
+      - Click "Lägg till anteckning" in the appearing menu
+    api_calls: []
+    auth_required: false
+  - name: Note Editing
+    description: Edit the content and color of a note
+    files:
+      - src/components/Note.tsx
+      - src/App.tsx
+    entry_route: /
+    user_interactions:
+      - Click on a note to focus
+      - Type text into the note
+      - Click color circles to change note color
+    api_calls: []
+    auth_required: false
+  - name: All Notes Dashboard
+    description: View and manage all saved notes
+    files:
+      - src/App.tsx
+    entry_route: /
+    user_interactions:
+      - Click the "List" icon in the main menu
+      - Search notes using the search bar
+      - Delete notes using the trash icon
+    api_calls: []
+    auth_required: false
+  - name: Settings Management
+    description: Configure language and backup data
+    files:
+      - src/App.tsx
+    entry_route: /?view=settings
+    user_interactions:
+      - Select language (Swedish/English)
+      - Toggle storage scope (Sync/Local)
+      - Click Export to download backup
+      - Upload a JSON file to Import
+    api_calls: []
+    auth_required: false
+known_limitations:
+  - issue: Extension only works on sites allowed by Chrome manifest
+    location: public/manifest.json
+    impact: Cannot be used on restricted pages like chrome:// settings

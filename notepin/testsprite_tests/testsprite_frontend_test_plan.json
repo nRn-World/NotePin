@@ -1,0 +1,607 @@
+[
+  {
+    "id": "TC001",
+    "title": "Create a note from a page element and see it anchored",
+    "description": "Verifies a user can create a note via the long right-click action and the note appears as a floating overlay anchored to the selected element.",
+    "category": "Context Menu Note Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Long right-click and hold on a web page element for 1 second"
+      },
+      {
+        "type": "action",
+        "description": "Choose the create-note option from the appearing menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Sample note A into the note text input"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a new floating note overlay is displayed anchored to the selected element"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Note stays anchored while scrolling",
+    "description": "Verifies that after creating a note anchored to a page element, scrolling keeps the note positioned relative to that element.",
+    "category": "Smart Anchoring",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Smart anchoring scroll test"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Scroll the page significantly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the note remains visually anchored near the same page element after scrolling"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Reopen page and see created note reappear on the same element",
+    "description": "Verifies that a created note persists and automatically reappears when the page is reloaded.",
+    "category": "Persistent Storage & Reappearance",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Long right-click and hold on a web page element for 1 second"
+      },
+      {
+        "type": "action",
+        "description": "Choose the create-note option from the appearing menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Persistence check note into the note text input"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously created note is displayed again anchored to the same element"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Create note and confirm it stays anchored when scrolling",
+    "description": "Verifies that after creating a note, scrolling the page keeps the note positioned relative to its target element.",
+    "category": "Context Menu Note Creation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Long right-click and hold on a web page element for 1 second"
+      },
+      {
+        "type": "action",
+        "description": "Choose the create-note option from the appearing menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Anchoring scroll check into the note text input"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Scroll the page significantly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the note remains positioned relative to the originally selected element"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Note remains anchored after page layout change",
+    "description": "Verifies that after creating a note, changing page layout via normal interaction does not detach the note from its anchored element.",
+    "category": "Smart Anchoring",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Smart anchoring layout change test"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Perform a normal page interaction that changes layout (such as expanding a section, opening an in-page details block, or resizing content within the page)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the note remains positioned relative to its anchored element after the layout change"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Create note and then find and delete it from the dashboard",
+    "description": "Verifies a note created on the page is discoverable in All Notes search and can be deleted so it disappears from the list.",
+    "category": "All Notes Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Dashboard delete journey keyword"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Open the All Notes view from the main menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Dashboard delete journey keyword into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Delete the matching note from the results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted note is no longer present in the All Notes results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Edit an existing note text and see it saved",
+    "description": "Verifies a user can edit an existing note inline and the updated text remains displayed after a reload.",
+    "category": "Note Editing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Long right-click and hold on a web page element for 1 second"
+      },
+      {
+        "type": "action",
+        "description": "Choose the create-note option from the appearing menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Original text into the note text input"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Click the note to focus it"
+      },
+      {
+        "type": "action",
+        "description": "Replace the note text with Updated text after edit"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the note displays the updated text"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Search filters notes by keyword",
+    "description": "Verifies that searching in All Notes filters the list to matching notes based on text content.",
+    "category": "All Notes Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Searchable unique keyword alpha"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note on another page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Different content beta"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Open the All Notes view from the main menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Searchable unique keyword alpha into the search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only notes matching the search query are shown in the results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Change note color and see it persist",
+    "description": "Verifies a user can change a note’s color and the color remains applied after returning to the page.",
+    "category": "Note Editing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Long right-click and hold on a web page element for 1 second"
+      },
+      {
+        "type": "action",
+        "description": "Choose the create-note option from the appearing menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Color persistence note into the note text input"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Click the note to focus it"
+      },
+      {
+        "type": "action",
+        "description": "Select a different note color"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the note color matches the newly selected color"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Multiple notes can be created on the same page",
+    "description": "Verifies that a user can create more than one anchored note on a page and both remain visible as separate overlays.",
+    "category": "Smart Anchoring",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with First anchored note"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Start creating another new anchored note on a different page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Second anchored note"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify two separate note overlays are visible on the page"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Open a note from results to view details",
+    "description": "Verifies that selecting a note from the All Notes results opens a detail view for that note.",
+    "category": "All Notes Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Detail view verification note"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Open the All Notes view from the main menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill Detail view verification note into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Select the matching note from the results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a note details view is displayed for the selected note"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC012",
+    "title": "Toggle storage scope and setting persists on revisit",
+    "description": "Verifies that changing storage scope between Sync and Local persists when returning to settings.",
+    "category": "Settings Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /?view=settings"
+      },
+      {
+        "type": "action",
+        "description": "Toggle storage scope to Sync"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /?view=settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the storage scope selection is still set to Sync"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC013",
+    "title": "Empty note text is rejected",
+    "description": "Verifies that attempting to confirm a new note with empty text is blocked and the note is not created.",
+    "category": "Smart Anchoring",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Leave the note text empty"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a note validation error is visible and no new note overlay is created"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC014",
+    "title": "Change language and see UI update in settings",
+    "description": "Verifies that switching between Swedish and English updates the settings UI language accordingly.",
+    "category": "Settings Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /?view=settings"
+      },
+      {
+        "type": "action",
+        "description": "Select Swedish as the language"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the settings UI displays Swedish labels"
+      },
+      {
+        "type": "action",
+        "description": "Select English as the language"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the settings UI displays English labels"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC015",
+    "title": "All Notes shows an empty state when no results match",
+    "description": "Verifies that an unmatched search query results in an empty state rather than stale results.",
+    "category": "All Notes Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the All Notes view from the main menu"
+      },
+      {
+        "type": "action",
+        "description": "Fill a query that is unlikely to match any note into the search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state is displayed indicating no notes match the search"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Export notes generates a JSON download",
+    "description": "Verifies that exporting from settings produces a JSON file download representing current notes.",
+    "category": "Settings Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new anchored note from the current page by invoking the extension's add-note action on a specific page element"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the note text with Export includes this note"
+      },
+      {
+        "type": "action",
+        "description": "Confirm note creation"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /?view=settings"
+      },
+      {
+        "type": "action",
+        "description": "Trigger export to download a JSON backup"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a JSON backup file download is initiated"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Import rejects malformed or non-JSON file",
+    "description": "Verifies that importing an invalid file shows a validation error and does not import notes.",
+    "category": "Settings Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /?view=settings"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to import a malformed or non-JSON file via the import control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible and the import is rejected"
+      }
+    ],
+    "priority": "Low"
+  }
+]

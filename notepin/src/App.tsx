@@ -7,7 +7,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion, useDragControls } from 'motion/react';
 import { Note, NoteData } from './components/Note';
 import { ContextMenu } from './components/ContextMenu';
-import { MousePointer2, Shield, Lock, RefreshCw, X, Globe, List, ArrowRight, GripHorizontal, Trash, Info, Search, Download, Upload, AlertTriangle, StickyNote, Move, Share2, Cloud } from 'lucide-react';
+import { MousePointer2, Shield, Lock, RefreshCw, X, Globe, List, ArrowRight, GripHorizontal, Trash, Info, Search, Download, Upload, AlertTriangle, StickyNote, Move, Share2, Cloud, Copy, Check } from 'lucide-react';
 
 const NOTE_COLORS = [
   '#22d3ee', // Cyan
@@ -274,6 +274,14 @@ export default function App() {
   const isPopup = isExtension && isExtensionPage && !isStandaloneSettings && window.innerWidth <= 460 && window.innerHeight <= 720;
   const isContentScript = isExtension && !isExtensionPage;
 
+  const getAssetUrl = (path: string) => {
+    if (isExtension && typeof chrome.runtime?.getURL === 'function') {
+      const relativePath = path.startsWith('/') ? path.slice(1) : path;
+      return chrome.runtime.getURL(relativePath);
+    }
+    return path;
+  };
+
   const [lang, setLang] = useState<Language>('sv');
   const [notes, setNotes] = useState<NoteData[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -417,6 +425,38 @@ export default function App() {
     return () => window.removeEventListener('noteoverlay:open-menu', handler);
   }, [isContentScript]);
 
+  // Close the context menu when content.tsx signals an outside left-click
+  useEffect(() => {
+    if (!isContentScript) return;
+    const handler = () => setMenuPos(null);
+    window.addEventListener('noteoverlay:close-menu', handler);
+    return () => window.removeEventListener('noteoverlay:close-menu', handler);
+  }, [isContentScript]);
+
+  // Auto-scroll to a note when the page is opened via "Gå till sida" (jump-hash)
+  useEffect(() => {
+    if (!isContentScript) return;
+    if (!isLoaded) return;
+
+    const hash = window.location.hash;
+    const match = hash.match(/#notepin-jump-(.+)/);
+    if (!match) return;
+
+    const jumpId = match[1];
+    const targetNote = notesRef.current.find(n => n.id === jumpId);
+    if (!targetNote) return;
+
+    // Scroll so the note is visible (note.y is page-absolute, subtract a small margin)
+    const scrollTarget = Math.max(0, targetNote.y - 80);
+    window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+
+    // Clean the hash from the URL bar without reloading
+    try {
+      const cleanUrl = window.location.href.split('#notepin-jump-')[0];
+      window.history.replaceState(null, '', cleanUrl);
+    } catch {}
+  }, [isContentScript, isLoaded]);
+
   useEffect(() => {
     if (!isLoaded) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
@@ -461,21 +501,24 @@ export default function App() {
   const [showHelp, setShowHelp] = useState(false);
 
   const openSettingsWindow = useCallback(() => {
+    if (isContentScript) {
+      setShowSettings(true);
+      setMenuPos(null);
+      return;
+    }
+
     if (isExtension) {
       try {
         chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' }, (res) => {
           setMenuPos(null);
-          if ((isContentScript && chrome.runtime?.lastError) || !res?.ok) {
-            console.error('NotePin needs to be reloaded on this page. Refresh (F5) and try again.');
+          if (chrome.runtime?.lastError || !res?.ok) {
+            console.error('NotePin failed to open settings.');
           }
         });
         if (isPopup) window.close();
         return;
       } catch {
         setMenuPos(null);
-        if (isContentScript) {
-          console.error('NotePin needs to be reloaded on this page. Refresh (F5) and try again.');
-        }
         if (isPopup) window.close();
         return;
       }
@@ -501,6 +544,30 @@ export default function App() {
 
   const isPlainObject = (v: unknown): v is Record<string, unknown> =>
     typeof v === 'object' && v !== null && !Array.isArray(v);
+
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const contactEmail = "bynrnworld@gmail.com";
+
+  const copyEmail = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(contactEmail);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
+  }, []);
+
+  const Footer = () => (
+    <div className="mt-auto pt-10 pb-6 text-center space-y-1.5 opacity-60 transition-opacity hover:opacity-100">
+      <div className="text-[10px] font-black text-slate-300 tracking-[0.2em] uppercase">NotePin</div>
+      <div className="text-[9px] text-slate-500 font-bold">Created 2026 by Robin Ayzit</div>
+      <div 
+        onClick={copyEmail}
+        className="flex items-center justify-center gap-1.5 text-[10px] text-cyan-400 font-black cursor-pointer hover:text-cyan-300 transition-colors group"
+      >
+        <span>{contactEmail}</span>
+        {copiedEmail ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} className="text-slate-600 group-hover:scale-110 transition-transform" />}
+      </div>
+    </div>
+  );
 
   const isFiniteNumber = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
@@ -895,10 +962,13 @@ export default function App() {
           <div className="flex items-center justify-between gap-6 mb-8">
             <div className="flex items-center gap-4 min-w-0">
               <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                <img src="/icons/icon48.png" className="w-8 h-8 object-contain" alt="Logo" />
+                <img src={getAssetUrl('/icons/icon48.png')} className="w-8 h-8 object-contain" alt="Logo" />
               </div>
               <div className="min-w-0">
-                <div className="text-white font-black text-3xl tracking-tight leading-tight truncate">NotePin</div>
+                <div className="text-white font-black text-3xl tracking-tight leading-tight flex items-center gap-3">
+                  NotePin
+                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.2</span>
+                </div>
                 <div className="text-slate-300/70 text-xs font-black tracking-[0.25em] uppercase">{t.settings}</div>
               </div>
             </div>
@@ -1118,12 +1188,12 @@ export default function App() {
 
               <div className="relative flex items-start gap-5">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-300/95 to-orange-600 border border-white/10 shadow-[0_18px_54px_rgba(249,115,22,0.45)] flex items-center justify-center shrink-0">
-                  <img src="/icons/Kaffe.icon.png" alt="" className="w-14 h-14 object-contain" />
+                  <img src={getAssetUrl('/icons/Kaffe.icon.png')} alt="" className="w-14 h-14 object-contain" />
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-3 text-cyan-200 font-black tracking-[0.22em] uppercase text-[11px]">
-                    <img src="/icons/Kaffe.icon.png" alt="" className="w-6 h-6 object-contain opacity-90" />
+                    <img src={getAssetUrl('/icons/Kaffe.icon.png')} alt="" className="w-6 h-6 object-contain opacity-90" />
                     <span className="truncate">{(t as any).wallOfFameTitle}</span>
                   </div>
                   <p className="mt-3 text-slate-100/80 text-base leading-relaxed">
@@ -1137,7 +1207,7 @@ export default function App() {
                     className="group mt-4 inline-flex items-center gap-3 rounded-2xl bg-cyan-300 px-6 py-3 text-slate-950 font-black shadow-[0_18px_50px_rgba(34,211,238,0.22)] transition-all hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071c2c]"
                   >
                     <span className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center">
-                      <img src="/icons/Kaffe.icon.png" alt="" className="w-6 h-6 object-contain" />
+                      <img src={getAssetUrl('/icons/Kaffe.icon.png')} alt="" className="w-6 h-6 object-contain" />
                     </span>
                     <span className="truncate">{(t as any).buyMeCoffee}</span>
                     <ArrowRight size={16} className="ml-1 text-slate-900/70 transition-transform group-hover:translate-x-0.5" />
@@ -1145,6 +1215,7 @@ export default function App() {
                 </div>
               </div>
             </motion.div>
+            <Footer />
           </div>
         </div>
       </div>
@@ -1208,10 +1279,10 @@ export default function App() {
         <div className="flex flex-col h-full p-6 pt-16 overflow-y-auto custom-scrollbar">
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 flex items-center justify-center mb-4">
-              <img src="/icons/icon128.png" className="w-full h-full object-contain drop-shadow-2xl" alt="Logo" />
+              <img src={getAssetUrl('/icons/icon128.png')} className="w-full h-full object-contain drop-shadow-2xl" alt="Logo" />
             </div>
             <h1 className="text-3xl font-black text-white tracking-tighter">NotePin</h1>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Version 1.0.0</p>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Version 1.0.2</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
@@ -1276,14 +1347,7 @@ export default function App() {
             </button>
           </div>
 
-          <div className="mt-auto py-8 text-center">
-            <p className="text-[9px] text-slate-600 font-bold tracking-[0.3em] uppercase mb-3">NotePin Productivity</p>
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-500/20" />
-            </div>
-          </div>
+          <Footer />
         </div>
       )}
 
@@ -1320,6 +1384,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <GripHorizontal size={14} className="text-white/40" />
                   <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">System Panel</span>
+                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.2</span>
                 </div>
                 <button 
                   onClick={closeModal} 
@@ -1335,6 +1400,7 @@ export default function App() {
                     <h2 className="text-3xl font-black text-white mb-3 flex items-center gap-3 tracking-tight">
                       <Globe className="text-cyan-400" />
                       {t.settings}
+                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.2</span>
                     </h2>
                     <p className="text-slate-200/80 text-base leading-relaxed mb-6">
                       {t.settingsIntro}
@@ -1543,12 +1609,12 @@ export default function App() {
 
                         <div className="relative flex items-start gap-5">
                           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-300/95 to-orange-600 border border-white/10 shadow-[0_18px_54px_rgba(249,115,22,0.45)] flex items-center justify-center shrink-0">
-                            <img src="/icons/Kaffe.icon.png" alt="" className="w-14 h-14 object-contain" />
+                            <img src={getAssetUrl('/icons/Kaffe.icon.png')} alt="" className="w-14 h-14 object-contain" />
                           </div>
 
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-3 text-cyan-200 font-black tracking-[0.22em] uppercase text-[11px]">
-                              <img src="/icons/Kaffe.icon.png" alt="" className="w-6 h-6 object-contain opacity-90" />
+                              <img src={getAssetUrl('/icons/Kaffe.icon.png')} alt="" className="w-6 h-6 object-contain opacity-90" />
                               <span className="truncate">{(t as any).wallOfFameTitle}</span>
                             </div>
                             <p className="mt-3 text-slate-100/80 text-base leading-relaxed">
@@ -1562,7 +1628,7 @@ export default function App() {
                               className="group mt-4 inline-flex items-center gap-3 rounded-2xl bg-cyan-300 px-6 py-3 text-slate-950 font-black shadow-[0_18px_50px_rgba(34,211,238,0.22)] transition-all hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071c2c]"
                             >
                               <span className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center">
-                                <img src="/icons/Kaffe.icon.png" alt="" className="w-6 h-6 object-contain" />
+                                <img src={getAssetUrl('/icons/Kaffe.icon.png')} alt="" className="w-6 h-6 object-contain" />
                               </span>
                               <span className="truncate">{(t as any).buyMeCoffee}</span>
                               <ArrowRight size={16} className="ml-1 text-slate-900/70 transition-transform group-hover:translate-x-0.5" />
@@ -1570,6 +1636,7 @@ export default function App() {
                           </div>
                         </div>
                       </motion.div>
+                      <Footer />
                   </div>
                 ) : showHelp ? (
                   <div className="flex-1 flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -1702,10 +1769,12 @@ export default function App() {
                                 </button>
                                 <button 
                                   onClick={() => {
+                                    // Append a jump-hash so the target page can auto-scroll to this note
+                                    const jumpUrl = note.url + '#notepin-jump-' + note.id;
                                     if (isExtension) {
-                                      window.open(note.url, '_blank');
+                                      window.open(jumpUrl, '_blank');
                                     } else {
-                                      alert(`Navigating to: ${note.url}`);
+                                      window.location.href = jumpUrl;
                                     }
                                     closeModal();
                                   }}

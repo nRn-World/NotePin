@@ -89,8 +89,25 @@ const findScrollableAncestor = (start: HTMLElement | null): HTMLElement | null =
 // --- Hold-to-open logic ---
 let holdTimer: ReturnType<typeof setTimeout> | null = null;
 let menuOpened = false;
+let menuIsVisible = false; // tracks if the React menu is currently shown
 let holdStartX = 0;
 let holdStartY = 0;
+
+// Listen for the menu opening/closing from React so we know the state
+window.addEventListener('noteoverlay:open-menu', () => { menuIsVisible = true; });
+window.addEventListener('noteoverlay:close-menu', () => { menuIsVisible = false; });
+
+// Close menu when user left-clicks anywhere outside the NotePin shadow DOM.
+// We use composedPath() to check if the click was inside the shadow host:
+// clicks on menu items ARE inside it and should not trigger a close here.
+document.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;          // only left clicks
+  if (!menuIsVisible) return;           // menu not open, nothing to do
+  const path = e.composedPath();
+  if (path.includes(container)) return; // click was inside the shadow DOM
+  menuIsVisible = false;
+  window.dispatchEvent(new CustomEvent('noteoverlay:close-menu'));
+}, true);
 
 document.addEventListener('mousedown', (e) => {
   if (e.button !== 2) return;
@@ -136,8 +153,11 @@ document.addEventListener('mousedown', (e) => {
     }
 
     menuOpened = true;
+    menuIsVisible = true;
+    // Add scroll offset so coordinates are page-absolute, matching the
+    // translate3d(-scrollX, -scrollY) applied to reactRoot in content.tsx.
     window.dispatchEvent(new CustomEvent('noteoverlay:open-menu', {
-      detail: { x: holdStartX, y: holdStartY, anchor }
+      detail: { x: holdStartX + window.scrollX, y: holdStartY + window.scrollY, anchor }
     }));
   }, 1000); // 1 second
 }, true);
@@ -151,12 +171,10 @@ document.addEventListener('mouseup', (e) => {
 }, true);
 
 document.addEventListener('contextmenu', (e) => {
-  // Always prevent the browser context menu - we handle it ourselves
-  e.preventDefault();
-  e.stopPropagation();
-
-  // If the menu was opened by holding, reset the flag
+  // Only prevent the browser context menu if NotePin menu was opened via the 1s hold.
   if (menuOpened) {
+    e.preventDefault();
+    e.stopPropagation();
     menuOpened = false;
   }
 }, true);

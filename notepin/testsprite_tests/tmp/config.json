@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000",
+  "executionArgs": {
+    "projectName": "notepin",
+    "projectPath": "d:\\APPS By nRn World\\Chrome\\NotePin\\notepin",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "production",
+    "envs": {
+      "API_KEY": "sk-user-DYsXtyvZZoo_pM_ZQyd2zAxvYVJUuqOteOrXi_gT5ye52vH_tRl55wbiAPdFw4swceECPLvvNy9d6aXI_fw8F7SQ0h1lowQq4y4iyhZlFK1wsflcEv3qU8PdvXuq3El7cGg"
+    }
+  },
+  "serverPort": 58317,
+  "proxy": "http://4b6cf8ca-b6aa-4f9a-8ec0-109d9b32185c:AApoxHIwY4K2KOHF9tIKklLSoKs1KFKR@tun.testsprite.com:8080"
+}
