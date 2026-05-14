@@ -84,7 +84,7 @@ NotePin is built with privacy in mind. Your notes stay on your device or in your
 **NotePin** was created by **Robin Ayzit** (nRn World).
 
 - 📧 Email: [bynrnworld@gmail.com](mailto:bynrnworld@gmail.com)
-- 🌐 Website: [nRn World](https://github.com/nRn-World)
+- 🌐 Website: https://gitgit.me/nrnworld
 
 ---
 
