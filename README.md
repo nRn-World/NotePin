@@ -45,7 +45,7 @@
 ## 🛠️ Installation
 
 ### For Users
-1. Download the latest release from the [Chrome Web Store](https://chrome.google.com/webstore).
+1. Download the latest release from the [Chrome Web Store]([https://chrome.google.com/webstore](https://chromewebstore.google.com/detail/notepin/fbodkflennhdbmabddjjmpfccpdghlmo?authuser=1&hl=sv)).
 2. Click **Add to Chrome**.
 3. Start pinning notes!
 
