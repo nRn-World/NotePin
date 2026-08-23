@@ -91,3 +91,9 @@ NotePin is built with privacy in mind. Your notes stay on your device or in your
 <p align="center">
   Created with ❤️ by nRn World © 2026
 </p>
+
+---
+
+☕ **Support development**: [Buy me a coffee 💜](https://ko-fi.com/nrnworld)
+
+Created by ❤️ © nRn World
