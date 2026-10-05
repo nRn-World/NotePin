@@ -1,3 +1,9 @@
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    chrome.storage.local.set({ firstRun: true });
+  }
+});
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (!message || typeof message !== 'object') return;
   if ((message as any).type !== 'OPEN_OPTIONS_PAGE') return;

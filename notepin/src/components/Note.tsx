@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useDragControls } from 'motion/react';
+import { motion } from 'motion/react';
 import { Trash, GripHorizontal, Check, Edit2, X, Cloud, Minimize2 } from 'lucide-react';
 
 export interface NoteData {
@@ -38,7 +38,27 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
   const [content, setContent] = useState(note.content);
   const noteRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
-  const dragControls = useDragControls();
+  
+  const latestNoteRef = useRef(note);
+  const latestOnUpdateRef = useRef(onUpdate);
+  const latestOnFocusRef = useRef(onFocus);
+  useEffect(() => { latestNoteRef.current = note; }, [note]);
+  useEffect(() => { latestOnUpdateRef.current = onUpdate; }, [onUpdate]);
+  useEffect(() => { latestOnFocusRef.current = onFocus; }, [onFocus]);
+
+  const dragStateRef = useRef<{
+    active: boolean;
+    startPointerX: number;
+    startPointerY: number;
+    startNoteX: number;
+    startNoteY: number;
+  }>({
+    active: false,
+    startPointerX: 0,
+    startPointerY: 0,
+    startNoteX: 0,
+    startNoteY: 0,
+  });
   
   // Handle clicking outside to save
   useEffect(() => {
@@ -50,6 +70,51 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isEditing, content]);
+
+  useEffect(() => {
+    const onDragMove = (e: MouseEvent) => {
+      const state = dragStateRef.current;
+      if (!state.active) return;
+      const dx = (e.clientX + window.scrollX) - state.startPointerX;
+      const dy = (e.clientY + window.scrollY) - state.startPointerY;
+      latestOnUpdateRef.current(latestNoteRef.current.id, {
+        x: state.startNoteX + dx,
+        y: state.startNoteY + dy,
+      });
+    };
+    const onDragUp = () => {
+      dragStateRef.current.active = false;
+      document.removeEventListener('mousemove', onDragMove, true);
+      document.removeEventListener('mouseup', onDragUp, true);
+    };
+    const onHeaderDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      latestOnFocusRef.current();
+      const n = latestNoteRef.current;
+      dragStateRef.current = {
+        active: true,
+        startPointerX: e.clientX + window.scrollX,
+        startPointerY: e.clientY + window.scrollY,
+        startNoteX: n.x,
+        startNoteY: n.y,
+      };
+      document.addEventListener('mousemove', onDragMove, true);
+      document.addEventListener('mouseup', onDragUp, true);
+    };
+    (window as any)[`__notepin_hd_${note.id}`] = onHeaderDown;
+    return () => {
+      document.removeEventListener('mousemove', onDragMove, true);
+      document.removeEventListener('mouseup', onDragUp, true);
+      try { delete (window as any)[`__notepin_hd_${note.id}`]; } catch {}
+    };
+  }, [note.id]);
+
+  const handleHeaderMouseDown = (e: React.MouseEvent) => {
+    const fn = (window as any)[`__notepin_hd_${note.id}`];
+    if (fn) fn(e.nativeEvent);
+  };
 
   // Resizing logic
   useEffect(() => {
@@ -101,42 +166,6 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
     setIsEditing(false);
   };
 
-  const handleDrag = (_: any, info: any) => {
-    const newX = note.x + info.delta.x;
-    const newY = note.y + info.delta.y;
-    
-    if (note.containerSelector) {
-      const container = document.querySelector(note.containerSelector) as HTMLElement | null;
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        onUpdate(note.id, {
-          x: newX,
-          y: newY,
-          containerX: container.scrollLeft + ((newX - window.scrollX) - rect.left),
-          containerY: container.scrollTop + ((newY - window.scrollY) - rect.top),
-        });
-        return;
-      }
-    }
-
-    // If anchored, update offsets
-    if (note.selector) {
-      const el = document.querySelector(note.selector);
-      if (el) {
-        const rect = (el as HTMLElement).getBoundingClientRect();
-        onUpdate(note.id, { 
-          x: newX, 
-          y: newY,
-          offsetX: newX - (rect.left + window.scrollX),
-          offsetY: newY - (rect.top + window.scrollY)
-        });
-        return;
-      }
-    }
-    
-    onUpdate(note.id, { x: newX, y: newY });
-  };
-
   return (
     <motion.div
       ref={noteRef}
@@ -152,11 +181,6 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
         position: 'absolute' 
       }}
       className={`z-50 ${className || ''}`}
-      drag
-      dragControls={dragControls}
-      dragListener={false}
-      dragMomentum={false}
-      onDragEnd={handleDrag}
     >
       <div 
         className="group relative flex flex-col w-full h-full backdrop-blur-xl border-2 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden transition-all duration-200"
@@ -167,8 +191,8 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
       >
         {/* Header/Grab Handle */}
         <div 
-          onPointerDown={(e) => dragControls.start(e)}
-          className="flex items-center justify-between px-3 py-2 bg-white/5 cursor-move border-b border-white/5 shrink-0"
+          onMouseDown={handleHeaderMouseDown}
+          className="flex items-center justify-between px-3 py-2 bg-white/5 cursor-move border-b border-white/5 shrink-0 select-none"
         >
           <div className="flex items-center gap-2 overflow-hidden flex-1">
             <GripHorizontal size={14} className="text-white/40 shrink-0" />

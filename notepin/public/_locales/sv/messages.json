@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "NotePin",
+    "description": "Tilläggets namn i Chrome Web Store och webbläsaren"
+  },
+  "extensionName": {
+    "message": "NotePin",
+    "description": "Alternativ nyckel för tilläggets namn"
+  },
+  "appDescription": {
+    "message": "Fäst anteckningar på valfri webbsida. Förankra i element, privat och offline.",
+    "description": "Kort store-/webbläsarbeskrivning (max ~132 tecken)"
+  }
+}

@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.2-blue?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Version-1.0.6-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Platform-Chrome-orange?style=for-the-badge" alt="Platform">
 </p>
 

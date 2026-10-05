@@ -1,6 +1,6 @@
 /**
  * @license
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: CC-BY-NC-4.0
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -52,6 +52,7 @@ const TRANSLATIONS = {
     howToIntro: "Snabbguide (webbsidor): håll inne högerklick i 1 sekund för att öppna menyn, skapa en anteckning och börja skriva direkt.",
     helpTitle: "Hur fungerar NotePin?",
     helpIntro: "Välkommen till NotePin. Här är en snabb genomgång av hur du maximerar din produktivitet.",
+    firstRunTip: "Tips: Öppna en valfri webbsida och håll inne högerklick i 1 sekund för att öppna menyn och skapa din första anteckning.",
     helpCta: "Börja använda NotePin",
     helpSteps: [
       { k: "create", n: 1, t: "Skapa", d: "Håll inne högerklick i 1 sekund var som helst på sidan för att fästa en ny anteckning." },
@@ -109,6 +110,7 @@ const TRANSLATIONS = {
     howToIntro: "Quick guide (web pages): hold right-click for 1 second to open the menu, add a note, and start typing immediately.",
     helpTitle: "How does NotePin work?",
     helpIntro: "Welcome to NotePin. Here's a quick guide on how to maximize your productivity.",
+    firstRunTip: "Tip: Open any webpage and hold right-click for 1 second to open the menu and create your first note.",
     helpCta: "Start using NotePin",
     helpSteps: [
       { k: "create", n: 1, t: "Create", d: "Hold right-click for 1 second anywhere on the page to pin a new note." },
@@ -165,6 +167,7 @@ const TRANSLATIONS = {
     howToIntro: "Guía rápida (páginas web): mantén pulsado el clic derecho durante 1 segundo para abrir el menú, crear una nota y escribir al instante.",
     helpTitle: "¿Cómo funciona NotePin?",
     helpIntro: "Bienvenido a NotePin. Aquí tienes una guía rápida para maximizar tu productividad.",
+    firstRunTip: "Consejo: Abre cualquier página y mantén pulsado el clic derecho durante 1 segundo para abrir el menú y crear tu primera nota.",
     helpCta: "Empezar con NotePin",
     helpSteps: [
       { k: "create", n: 1, t: "Crear", d: "Mantén pulsado el clic derecho durante 1 segundo en cualquier lugar para fijar una nota nueva." },
@@ -221,6 +224,7 @@ const TRANSLATIONS = {
     howToIntro: "Guide rapide (pages web) : maintenez le clic droit pendant 1 seconde pour ouvrir le menu, ajouter une note et écrire immédiatement.",
     helpTitle: "Comment fonctionne NotePin ?",
     helpIntro: "Bienvenue sur NotePin. Voici un guide rapide pour maximiser votre productivité.",
+    firstRunTip: "Astuce : ouvrez une page et maintenez le clic droit pendant 1 seconde pour ouvrir le menu et créer votre première note.",
     helpCta: "Commencer avec NotePin",
     helpSteps: [
       { k: "create", n: 1, t: "Créer", d: "Maintenez le clic droit pendant 1 seconde n'importe où pour épingler une note." },
@@ -295,12 +299,53 @@ export default function App() {
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveTimerRef = useRef<number | null>(null);
   const anchorRafRef = useRef<number | null>(null);
   const missingAnchorAttemptRef = useRef<Record<string, number>>({});
-  const mutationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mutationTimerRef = useRef<number | null>(null);
   const notesRef = useRef<NoteData[]>([]);
   const pendingAnchorRef = useRef<PendingAnchor | null>(null);
+
+  const loadNotesFromStorage = useCallback(async () => {
+    if (!isExtension) {
+      const savedNotes = localStorage.getItem('note-overlay-data');
+      const savedLang = localStorage.getItem('note-lang');
+      if (savedNotes) {
+        try {
+          const parsed = JSON.parse(savedNotes);
+          const currentSerialized = JSON.stringify(notesRef.current);
+          const incomingSerialized = JSON.stringify(parsed);
+          if (currentSerialized !== incomingSerialized) setNotes(parsed);
+        } catch {}
+      }
+      if (savedLang) setLang(savedLang as Language);
+      setIsLoaded(true);
+      return;
+    }
+    try {
+      if (!chrome.runtime?.id) return;
+      const get = (area: chrome.storage.StorageArea, keys: string[]) =>
+        new Promise<Record<string, any>>((resolve) => area.get(keys, resolve));
+      const keys = ['note-overlay-data', 'note-lang'];
+      const syncResult = await get(chrome.storage.sync, keys);
+      if (syncResult['note-overlay-data']) {
+        const parsed = syncResult['note-overlay-data'] as NoteData[];
+        const currentSerialized = JSON.stringify(notesRef.current);
+        const incomingSerialized = JSON.stringify(parsed);
+        if (currentSerialized !== incomingSerialized) setNotes(parsed);
+        if (syncResult['note-lang']) setLang(syncResult['note-lang'] as Language);
+        return;
+      }
+      const localResult = await get(chrome.storage.local, keys);
+      if (localResult['note-overlay-data']) {
+        const parsed = localResult['note-overlay-data'] as NoteData[];
+        const currentSerialized = JSON.stringify(notesRef.current);
+        const incomingSerialized = JSON.stringify(parsed);
+        if (currentSerialized !== incomingSerialized) setNotes(parsed);
+      }
+      if (localResult['note-lang']) setLang(localResult['note-lang'] as Language);
+    } catch {}
+  }, [isExtension]);
 
   useEffect(() => {
     notesRef.current = notes;
@@ -413,6 +458,32 @@ export default function App() {
     };
   }, [isExtension]);
 
+  useEffect(() => {
+    if (!isExtension) return;
+    try {
+      if (!chrome.runtime?.id) return;
+      const listener = (
+        changes: Record<string, chrome.storage.StorageChange>,
+        areaName: string,
+      ) => {
+        if (areaName !== 'sync' && areaName !== 'local') return;
+        if (changes['note-overlay-data']?.newValue !== undefined) {
+          const incoming = changes['note-overlay-data'].newValue as NoteData[];
+          const currentSerialized = JSON.stringify(notesRef.current);
+          const incomingSerialized = JSON.stringify(incoming);
+          if (currentSerialized !== incomingSerialized) {
+            setNotes(incoming);
+          }
+        }
+        if (changes['note-lang']?.newValue !== undefined) {
+          setLang(changes['note-lang'].newValue as Language);
+        }
+      };
+      chrome.storage.onChanged.addListener(listener);
+      return () => chrome.storage.onChanged.removeListener(listener);
+    } catch {}
+  }, [isExtension]);
+
   // Listen for the hold-to-open event dispatched from content.tsx
   useEffect(() => {
     if (!isContentScript) return;
@@ -461,7 +532,7 @@ export default function App() {
     if (!isLoaded) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
-    saveTimerRef.current = setTimeout(() => {
+    const persist = async () => {
       if (isExtension) {
         try {
           if (!chrome.runtime?.id) return;
@@ -477,7 +548,7 @@ export default function App() {
           };
 
           const primary = storageScope === 'sync' ? chrome.storage.sync : chrome.storage.local;
-          set(primary, payload).catch(async () => {
+          await set(primary, payload).catch(async () => {
             if (storageScope !== 'local') setStorageScope('local');
             try {
               await set(chrome.storage.local, payload);
@@ -488,10 +559,24 @@ export default function App() {
         localStorage.setItem('note-overlay-data', JSON.stringify(notes));
         localStorage.setItem('note-lang', lang);
       }
-    }, 250);
+    };
+
+    const flush = () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+      persist();
+    };
+
+    saveTimerRef.current = window.setTimeout(persist, 250);
+    window.addEventListener('pagehide', flush);
+    window.addEventListener('beforeunload', flush);
 
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('beforeunload', flush);
     };
   }, [notes, lang, isLoaded, isExtension, storageScope]);
 
@@ -499,6 +584,27 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showAllNotes, setShowAllNotes] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+
+  useEffect(() => {
+    if (!showAllNotes) return;
+    loadNotesFromStorage();
+  }, [showAllNotes, loadNotesFromStorage]);
+
+  // First-run: auto-open help once after install
+  useEffect(() => {
+    if (!isExtension || !isPopup || !isLoaded) return;
+    try {
+      if (!chrome.runtime?.id) return;
+      chrome.storage.local.get(['firstRun'], (result) => {
+        if (chrome.runtime?.lastError) return;
+        if (!result.firstRun) return;
+        setShowHelp(true);
+        chrome.storage.local.remove('firstRun');
+      });
+    } catch {
+      // ignore
+    }
+  }, [isExtension, isPopup, isLoaded]);
 
   const openSettingsWindow = useCallback(() => {
     if (isContentScript) {
@@ -813,7 +919,7 @@ export default function App() {
 
     const schedule = () => {
       if (mutationTimerRef.current) return;
-      mutationTimerRef.current = setTimeout(() => {
+      mutationTimerRef.current = window.setTimeout(() => {
         mutationTimerRef.current = null;
         requestAnchorUpdate();
       }, 250);
@@ -967,7 +1073,7 @@ export default function App() {
               <div className="min-w-0">
                 <div className="text-white font-black text-3xl tracking-tight leading-tight flex items-center gap-3">
                   NotePin
-                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.2</span>
+                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.6</span>
                 </div>
                 <div className="text-slate-300/70 text-xs font-black tracking-[0.25em] uppercase">{t.settings}</div>
               </div>
@@ -1282,7 +1388,7 @@ export default function App() {
               <img src={getAssetUrl('/icons/icon128.png')} className="w-full h-full object-contain drop-shadow-2xl" alt="Logo" />
             </div>
             <h1 className="text-3xl font-black text-white tracking-tighter">NotePin</h1>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Version 1.0.2</p>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Version 1.0.6</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
@@ -1384,7 +1490,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <GripHorizontal size={14} className="text-white/40" />
                   <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">System Panel</span>
-                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.2</span>
+                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.6</span>
                 </div>
                 <button 
                   onClick={closeModal} 
@@ -1400,7 +1506,7 @@ export default function App() {
                     <h2 className="text-3xl font-black text-white mb-3 flex items-center gap-3 tracking-tight">
                       <Globe className="text-cyan-400" />
                       {t.settings}
-                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.2</span>
+                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.6</span>
                     </h2>
                     <p className="text-slate-200/80 text-base leading-relaxed mb-6">
                       {t.settingsIntro}
@@ -1676,6 +1782,11 @@ export default function App() {
                     </div>
 
                     <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 mt-5">
+                      <div className="mb-4 rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+                        <p className="text-cyan-100 text-sm font-bold leading-relaxed">
+                          {(t as any).firstRunTip ?? t.firstNoteHint}
+                        </p>
+                      </div>
                       <div className="space-y-3">
                         {helpSteps.map((s: any) => {
                           const Icon =
@@ -1808,7 +1919,7 @@ export default function App() {
       <AnimatePresence>
         {[...notes]
           .filter(note => {
-            if (!isContentScript) return true;
+            if (!isContentScript) return false;
             return normalizeUrl(note.url) === normalizeUrl(currentUrl);
           })
           .sort((a, b) => a.timestamp - b.timestamp)

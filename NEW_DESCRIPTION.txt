@@ -1,0 +1,47 @@
+Pin sticky notes to any webpage. Anchor to elements, stay private, work offline.
+
+NotePin lets you pin floating sticky notes directly onto any webpage — right where you need them.
+
+How to create a note:
+On any page, hold right-click for 1 second. NotePin opens a menu so you can add a sticky note without fighting the normal browser context menu.
+
+Key features:
+- Smart sticky notes tied to the page where you created them
+- Drag to move, resize from the corner, click to bring a note forward
+- Auto-save while you type
+- Saved Notes dashboard to search and manage notes across sites
+- Export / import JSON backups
+- Optional Chrome sync when available; otherwise data stays local
+- English and Swedish UI
+
+Privacy:
+Your notes stay on your device or in your personal Chrome sync. NotePin does not send notes to external servers.
+
+Support: bynrnworld@gmail.com
+Homepage: https://github.com/nRn-World/NotePin
+
+---
+
+SVENSKA
+
+Fäst anteckningar på valfri webbsida. Förankra i element, privat och offline.
+
+NotePin låter dig fästa flytande anteckningar direkt på vilken webbsida som helst — precis där du behöver dem.
+
+Så skapar du en anteckning:
+På valfri sida: håll inne högerklick i 1 sekund. NotePin öppnar en meny så att du kan lägga till en anteckning utan att störa den vanliga högerklicksmenyn.
+
+Funktioner:
+- Smarta anteckningar som hör till sidan där du skapade dem
+- Dra för att flytta, ändra storlek i hörnet, klicka för att lyfta fram
+- Autosparning medan du skriver
+- Översikt över sparade anteckningar — sök och hantera över flera sajter
+- Exportera / importera JSON-backup
+- Valfri Chrome-synk när det finns; annars sparas allt lokalt
+- Gränssnitt på svenska och engelska
+
+Integritet:
+Dina anteckningar stannar på din enhet eller i din personliga Chrome-synk. NotePin skickar inte anteckningar till externa servrar.
+
+Support: bynrnworld@gmail.com
+Hemsida: https://github.com/nRn-World/NotePin

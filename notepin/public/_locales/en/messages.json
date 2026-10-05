@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "NotePin",
+    "description": "Extension name shown in the Chrome Web Store and browser UI"
+  },
+  "extensionName": {
+    "message": "NotePin",
+    "description": "Alternate extension name key"
+  },
+  "appDescription": {
+    "message": "Pin sticky notes to any webpage. Anchor to elements, stay private, work offline.",
+    "description": "Short store/browser description (max ~132 characters)"
+  }
+}
