@@ -1322,7 +1322,7 @@ export default function App() {
               <div className="min-w-0">
                 <div className="text-white font-black text-3xl tracking-tight leading-tight flex items-center gap-3">
                   NotePin
-                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.7</span>
+                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.8</span>
                 </div>
                 <div className="text-slate-300/70 text-xs font-black tracking-[0.25em] uppercase">{t.settings}</div>
               </div>
@@ -1636,7 +1636,7 @@ export default function App() {
             <img src={getAssetUrl('/icons/icon48.png')} className="w-10 h-10 object-contain" alt="" />
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-semibold text-white leading-tight">NotePin</h1>
-              <p className="text-xs text-slate-500">v1.0.7</p>
+              <p className="text-xs text-slate-500">v1.0.8</p>
             </div>
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-xs text-slate-300 font-medium">
               {LANGUAGE_FLAGS[lang]}
@@ -1740,7 +1740,7 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <GripHorizontal size={14} className="text-white/40" />
                   <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">NotePin</span>
-                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.7</span>
+                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.8</span>
                 </div>
                 <button 
                   onClick={closeModal} 
@@ -1756,7 +1756,7 @@ export default function App() {
                     <h2 className="text-3xl font-black text-white mb-3 flex items-center gap-3 tracking-tight">
                       <Globe className="text-cyan-400" />
                       {t.settings}
-                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.7</span>
+                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.8</span>
                     </h2>
                     <p className="text-slate-200/80 text-base leading-relaxed mb-6">
                       {t.settingsIntro}

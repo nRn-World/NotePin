@@ -12,9 +12,9 @@
 
 <p align="center">
   <a href="https://chromewebstore.google.com/detail/notepin/fbodkflennhdbmabddjjmpfccpdghlmo">
-    <img src="https://img.shields.io/badge/Chrome_Web_Store-v1.0.7-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store">
+    <img src="https://img.shields.io/badge/Chrome_Web_Store-v1.0.8-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store">
   </a>
-  <img src="https://img.shields.io/badge/Version-1.0.7-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.8-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Platform-Chrome_._Firefox-orange?style=for-the-badge" alt="Platform">
 </p>
@@ -168,14 +168,14 @@ NotePin/
 │   │   ├── content.tsx     # Shadow DOM bootstrap + hold-to-open logic
 │   │   └── background.ts   # Service worker
 │   └── package.json
-└── NotePin_v1.0.7.zip      # Built & ready for Chrome Web Store
+└── NotePin_v1.0.8.zip      # Built & ready for Chrome Web Store
 ```
 
 ---
 
 ## 🧾 Changelog
 
-### v1.0.7 — *October 2026*
+### v1.0.8 — *October 2026*
 - 🗂️ **NEW** Custom categories for Saved Notes: create your own, assign from a dropdown, or drag a note straight onto a category.
 - ↕️ **NEW** Drag-and-drop sorting of Saved Notes (grab the handle); the order is saved.
 - 🎨 **NEW** Redesigned popup, welcome screen and Saved Notes list; SVG flags (Windows has no flag emoji); fixed popup size so the layout no longer jumps between languages.
