@@ -150,7 +150,7 @@ def verify() -> None:
     with zipfile.ZipFile(ZIP_NAME, "r") as zf:
         names = set(zf.namelist())
         manifest = json.loads(zf.read("manifest.json"))
-    required = {"manifest.json", "background.js", "loader.js", "content.js", "index.html", "icons/icon32.png"}
+    required = {"manifest.json", "background.js", "content.js", "index.html", "icons/icon32.png"}
     missing = sorted(required - names)
     if missing:
         raise RuntimeError("Missing: " + ", ".join(missing))
