@@ -12,9 +12,9 @@
 
 <p align="center">
   <a href="https://chromewebstore.google.com/detail/notepin/fbodkflennhdbmabddjjmpfccpdghlmo">
-    <img src="https://img.shields.io/badge/Chrome_Web_Store-v1.0.6-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store">
+    <img src="https://img.shields.io/badge/Chrome_Web_Store-v1.0.7-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store">
   </a>
-  <img src="https://img.shields.io/badge/Version-1.0.6-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.7-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Platform-Chrome_._Firefox-orange?style=for-the-badge" alt="Platform">
 </p>
@@ -168,12 +168,21 @@ NotePin/
 │   │   ├── content.tsx     # Shadow DOM bootstrap + hold-to-open logic
 │   │   └── background.ts   # Service worker
 │   └── package.json
-└── NotePin_v1.0.6.zip      # Built & ready for Chrome Web Store
+└── NotePin_v1.0.7.zip      # Built & ready for Chrome Web Store
 ```
 
 ---
 
 ## 🧾 Changelog
+
+### v1.0.7 — *October 2026*
+- 🗂️ **NEW** Custom categories for Saved Notes: create your own, assign from a dropdown, or drag a note straight onto a category.
+- ↕️ **NEW** Drag-and-drop sorting of Saved Notes (grab the handle); the order is saved.
+- 🎨 **NEW** Redesigned popup, welcome screen and Saved Notes list; SVG flags (Windows has no flag emoji); fixed popup size so the layout no longer jumps between languages.
+- 🌐 English is now the default language until you choose another one.
+- 🐛 **FIXED** Notes could revert to an older version: `storage.sync` has an 8 KB per-item limit. Notes are now stored in `storage.local` (existing synced notes are migrated automatically).
+- 🐛 **FIXED** Clicking inside a note's text box ended editing (shadow DOM click detection); resizing a note or the panel stopped after the first mouse move; keystrokes in a note triggered the host page's hotkeys; text is now auto-saved while typing.
+- 🐛 **FIXED** Context menu is kept inside the viewport.
 
 ### v1.0.6 — *October 2026*
 - 🐛 **FIXED** Notes created on a web page no longer "leak" and render inside the popup window — they only show up under **Saved Notes**, exactly as expected.

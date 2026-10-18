@@ -22,6 +22,8 @@ export interface NoteData {
   anchorTag?: string;
   anchorText?: string;
   isMinimized?: boolean;
+  category?: string; // user-created category name
+  order?: number; // position in the saved-notes list
 }
 
 export interface NoteProps {
@@ -63,7 +65,8 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
   // Handle clicking outside to save
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (isEditing && noteRef.current && !noteRef.current.contains(e.target as Node)) {
+      // composedPath: in the shadow DOM e.target is retargeted to the host, so contains() alone always fails
+      if (isEditing && noteRef.current && !e.composedPath().includes(noteRef.current)) {
         handleSave();
       }
     };
@@ -130,8 +133,8 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
       e.stopPropagation();
       startX = e.clientX;
       startY = e.clientY;
-      startWidth = note.width;
-      startHeight = note.height;
+      startWidth = latestNoteRef.current.width;
+      startHeight = latestNoteRef.current.height;
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     };
@@ -139,7 +142,7 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
     const onMouseMove = (e: MouseEvent) => {
       const newWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
       const newHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
-      onUpdate(note.id, { width: newWidth, height: newHeight });
+      latestOnUpdateRef.current(latestNoteRef.current.id, { width: newWidth, height: newHeight });
     };
 
     const onMouseUp = () => {
@@ -159,7 +162,7 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
         resizer.removeEventListener('mousedown', onMouseDown);
       }
     };
-  }, [note.id, note.width, note.height, onUpdate]);
+  }, [note.id]);
 
   const handleSave = () => {
     onUpdate(note.id, { content });
@@ -247,7 +250,14 @@ export const Note: React.FC<NoteProps> = ({ note, onUpdate, onDelete, onFocus, t
                 <textarea
                   autoFocus
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    onUpdate(note.id, { content: e.target.value }); // auto-save: nothing is lost if the page closes mid-edit
+                  }}
+                  // keep keystrokes away from the host page's hotkeys
+                  onKeyDown={(e) => e.stopPropagation()}
+                  onKeyUp={(e) => e.stopPropagation()}
+                  onKeyPress={(e) => e.stopPropagation()}
                   className="w-full h-full bg-transparent outline-none resize-none text-sm font-sans text-white leading-relaxed placeholder:text-white/30"
                   placeholder={t.placeholder}
                 />

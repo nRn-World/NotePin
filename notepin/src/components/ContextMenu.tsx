@@ -25,7 +25,11 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, onAddNote, onOpe
         initial={{ opacity: 0, scale: 0.9, y: -10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: -10 }}
-        style={{ left: x, top: y }}
+        // x/y are page coordinates (the overlay is translated by the scroll offset); keep the menu inside the viewport
+        style={{
+          left: Math.max(0, Math.min(x, window.scrollX + window.innerWidth - 250)),
+          top: Math.max(0, Math.min(y, window.scrollY + window.innerHeight - 330)),
+        }}
         className="fixed z-50 min-w-[240px] glass shadow-2xl overflow-hidden py-1 border border-white/20 select-none pointer-events-auto"
       >
         <div className="px-3 py-2 border-b border-white/5 bg-white/5 flex items-center justify-between">

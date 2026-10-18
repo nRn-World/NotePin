@@ -4,10 +4,10 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { AnimatePresence, motion, useDragControls } from 'motion/react';
+import { AnimatePresence, motion, Reorder, useDragControls } from 'motion/react';
 import { Note, NoteData } from './components/Note';
 import { ContextMenu } from './components/ContextMenu';
-import { MousePointer2, Shield, Lock, RefreshCw, X, Globe, List, ArrowRight, GripHorizontal, Trash, Info, Search, Download, Upload, AlertTriangle, StickyNote, Move, Share2, Cloud, Copy, Check } from 'lucide-react';
+import { MousePointer2, Shield, Lock, RefreshCw, X, Globe, List, ArrowRight, GripHorizontal, Trash, Info, Search, Download, Upload, AlertTriangle, StickyNote, Move, Share2, Cloud, Copy, Check, GripVertical, Plus } from 'lucide-react';
 
 const NOTE_COLORS = [
   '#22d3ee', // Cyan
@@ -59,7 +59,7 @@ const TRANSLATIONS = {
       { k: "write", n: 2, t: "Skriv direkt", d: "Klicka inuti en anteckning för att börja skriva. Allt sparas automatiskt." },
       { k: "organize", n: 3, t: "Organisera", d: "Dra i det övre handtaget för att flytta, eller i nedre hörnet för att ändra storlek." },
       { k: "share", n: 6, t: "Dela", d: "Exportera dina anteckningar som backup eller importera dem igen när du vill." },
-      { k: "sync", n: 7, t: "Synka", d: "Din data kan synkas via Chrome när det är tillgängligt och annars sparas lokalt." }
+      { k: "sync", n: 7, t: "Privat", d: "Dina anteckningar sparas bara lokalt i din webbläsare. Inget skickas till någon server." }
     ],
     features: [
       { t: "Skapa", d: "Håll inne högerklick i 1 sekund var som helst på sidan för att fästa en ny anteckning." },
@@ -70,6 +70,21 @@ const TRANSLATIONS = {
     ],
     browserUrl: "https://notepin.app/modern-annotation-system",
     browserTitle: "Contextual Architecture",
+    statTotal: "Totalt sparade",
+    statSite: "Denna sajt",
+    searchPlaceholder: "Sök anteckningar...",
+    sourceLabel: "Källa",
+    deleteNote: "Ta bort",
+    welcomeTitle: "Välkommen till NotePin",
+    welcomeSub: "Fäst anteckningar direkt på vilken webbsida som helst.",
+    allCategory: "Alla",
+    newCategory: "Ny kategori",
+    categoryName: "Kategorinamn",
+    noCategory: "Ingen kategori",
+    categoryLabel: "Kategori",
+    deleteCategory: "Ta bort kategori",
+    dragHint: "Dra för att sortera",
+    noNotesHere: "Inga anteckningar här.",
     langName: "Svenska"
     ,
     wallOfFameTitle: "THE WALL OF FAME",
@@ -117,7 +132,7 @@ const TRANSLATIONS = {
       { k: "write", n: 2, t: "Write instantly", d: "Click inside a note to start typing. Everything is auto-saved." },
       { k: "organize", n: 3, t: "Organize", d: "Drag the top handle to move, or the bottom corner to resize." },
       { k: "share", n: 6, t: "Share", d: "Export your notes as a backup and import them back anytime." },
-      { k: "sync", n: 7, t: "Sync", d: "Your data can sync via Chrome when available, otherwise it stays local." }
+      { k: "sync", n: 7, t: "Private", d: "Your notes are stored locally in your browser only. Nothing is sent to any server." }
     ],
     features: [
       { t: "Create", d: "Hold right-click for 1 second anywhere on the page to pin a new note." },
@@ -128,6 +143,21 @@ const TRANSLATIONS = {
     ],
     browserUrl: "https://notepin.app/modern-annotation-system",
     browserTitle: "Contextual Architecture",
+    statTotal: "Total saved",
+    statSite: "This site",
+    searchPlaceholder: "Search notes...",
+    sourceLabel: "Source",
+    deleteNote: "Delete",
+    welcomeTitle: "Welcome to NotePin",
+    welcomeSub: "Pin notes directly onto any web page.",
+    allCategory: "All",
+    newCategory: "New category",
+    categoryName: "Category name",
+    noCategory: "No category",
+    categoryLabel: "Category",
+    deleteCategory: "Delete category",
+    dragHint: "Drag to reorder",
+    noNotesHere: "No notes here.",
     langName: "English",
     wallOfFameTitle: "THE WALL OF FAME",
     wallOfFameDesc: "Support NotePin development by buying me a coffee. Your contribution helps keep this extension free and continuously improving!",
@@ -174,7 +204,7 @@ const TRANSLATIONS = {
       { k: "write", n: 2, t: "Escribir", d: "Haz clic dentro de una nota para empezar a escribir. Se guarda automáticamente." },
       { k: "organize", n: 3, t: "Organizar", d: "Arrastra el asa superior para mover o la esquina para redimensionar." },
       { k: "share", n: 6, t: "Compartir", d: "Exporta tus notas como copia y vuelve a importarlas cuando quieras." },
-      { k: "sync", n: 7, t: "Sincronizar", d: "Los datos se sincronizan en Chrome cuando está disponible; si no, se guardan localmente." }
+      { k: "sync", n: 7, t: "Privado", d: "Tus notas se guardan solo en tu navegador. No se envía nada a ningún servidor." }
     ],
     features: [
       { t: "Crear", d: "Mantén pulsado el clic derecho durante 1 segundo en cualquier lugar para fijar una nota nueva." },
@@ -185,6 +215,21 @@ const TRANSLATIONS = {
     ],
     browserUrl: "https://notepin.app/modern-annotation-system",
     browserTitle: "Contextual Architecture",
+    statTotal: "Notas guardadas",
+    statSite: "Este sitio",
+    searchPlaceholder: "Buscar notas...",
+    sourceLabel: "Origen",
+    deleteNote: "Eliminar",
+    welcomeTitle: "Bienvenido a NotePin",
+    welcomeSub: "Fija notas directamente en cualquier página web.",
+    allCategory: "Todas",
+    newCategory: "Nueva categoría",
+    categoryName: "Nombre",
+    noCategory: "Sin categoría",
+    categoryLabel: "Categoría",
+    deleteCategory: "Eliminar categoría",
+    dragHint: "Arrastra para ordenar",
+    noNotesHere: "No hay notas aquí.",
     langName: "Español",
     wallOfFameTitle: "THE WALL OF FAME",
     wallOfFameDesc: "Apoya el desarrollo de NotePin comprándome un café. ¡Tu contribución ayuda a mantener esta extensión gratis y en mejora constante!",
@@ -231,7 +276,7 @@ const TRANSLATIONS = {
       { k: "write", n: 2, t: "Écrire", d: "Cliquez dans une note pour commencer à écrire. Tout est sauvegardé automatiquement." },
       { k: "organize", n: 3, t: "Organiser", d: "Faites glisser la poignée du haut pour déplacer, ou le coin pour redimensionner." },
       { k: "share", n: 6, t: "Partager", d: "Exportez vos notes en sauvegarde et importez-les quand vous voulez." },
-      { k: "sync", n: 7, t: "Synchroniser", d: "Les données se synchronisent via Chrome si possible, sinon elles restent locales." }
+      { k: "sync", n: 7, t: "Privé", d: "Vos notes restent uniquement dans votre navigateur. Rien n’est envoyé à un serveur." }
     ],
     features: [
       { t: "Créer", d: "Maintenez le clic droit pendant 1 seconde n'importe où pour épingler une note." },
@@ -242,6 +287,21 @@ const TRANSLATIONS = {
     ],
     browserUrl: "https://notepin.app/modern-annotation-system",
     browserTitle: "Contextual Architecture",
+    statTotal: "Notes enregistrées",
+    statSite: "Ce site",
+    searchPlaceholder: "Rechercher...",
+    sourceLabel: "Source",
+    deleteNote: "Supprimer",
+    welcomeTitle: "Bienvenue sur NotePin",
+    welcomeSub: "Épinglez des notes directement sur n’importe quelle page web.",
+    allCategory: "Toutes",
+    newCategory: "Nouvelle catégorie",
+    categoryName: "Nom",
+    noCategory: "Sans catégorie",
+    categoryLabel: "Catégorie",
+    deleteCategory: "Supprimer la catégorie",
+    dragHint: "Glisser pour trier",
+    noNotesHere: "Aucune note ici.",
     langName: "Français",
     wallOfFameTitle: "THE WALL OF FAME",
     wallOfFameDesc: "Soutenez le développement de NotePin en m’offrant un café. Votre contribution aide à garder cette extension gratuite et en amélioration continue !",
@@ -255,11 +315,147 @@ type PendingAnchor = Pick<
   'selector' | 'offsetX' | 'offsetY' | 'containerSelector' | 'containerX' | 'containerY' | 'anchorTag' | 'anchorText'
 >;
 
-const LANGUAGE_FLAGS: Record<Language, string> = {
-  sv: '🇸🇪',
-  en: '🇬🇧',
-  es: '🇪🇸',
-  fr: '🇫🇷',
+const FlagSvg = ({ vb, children }: { vb: string; children: React.ReactNode }) => (
+  <svg viewBox={vb} width="20" height="14" className="rounded-[3px] shrink-0 shadow-[0_0_0_1px_rgba(255,255,255,0.15)]" aria-hidden="true" preserveAspectRatio="none">
+    {children}
+  </svg>
+);
+
+const LANGUAGE_FLAGS: Record<Language, React.ReactNode> = {
+  sv: (
+    <FlagSvg vb="0 0 16 10">
+      <rect width="16" height="10" fill="#006AA7" />
+      <rect x="5" width="2" height="10" fill="#FECC02" />
+      <rect y="4" width="16" height="2" fill="#FECC02" />
+    </FlagSvg>
+  ),
+  en: (
+    <FlagSvg vb="0 0 60 30">
+      <rect width="60" height="30" fill="#012169" />
+      <path d="M0 0L60 30M60 0L0 30" stroke="#fff" strokeWidth="6" />
+      <path d="M0 0L60 30M60 0L0 30" stroke="#C8102E" strokeWidth="2.5" />
+      <path d="M30 0V30M0 15H60" stroke="#fff" strokeWidth="10" />
+      <path d="M30 0V30M0 15H60" stroke="#C8102E" strokeWidth="6" />
+    </FlagSvg>
+  ),
+  es: (
+    <FlagSvg vb="0 0 3 2">
+      <rect width="3" height="2" fill="#AA151B" />
+      <rect y="0.5" width="3" height="1" fill="#F1BF00" />
+    </FlagSvg>
+  ),
+  fr: (
+    <FlagSvg vb="0 0 3 2">
+      <rect width="1" height="2" fill="#0055A4" />
+      <rect x="1" width="1" height="2" fill="#fff" />
+      <rect x="2" width="1" height="2" fill="#EF4135" />
+    </FlagSvg>
+  ),
+};
+
+// List order: manually ordered notes by `order`; notes without one (new) come first, newest first.
+const sortForList = (list: NoteData[]) =>
+  [...list].sort((a, b) => {
+    if (a.order === undefined && b.order === undefined) return b.timestamp - a.timestamp;
+    if (a.order === undefined) return -1;
+    if (b.order === undefined) return 1;
+    return a.order - b.order;
+  });
+
+interface NoteRowProps {
+  note: NoteData;
+  categories: string[];
+  t: any;
+  onOpen: (note: NoteData) => void;
+  onDelete: (id: string) => void;
+  onCategory: (id: string, category: string | undefined) => void;
+  onDragState: (dragging: boolean) => void;
+  onHoverCategory: (category: string | null) => void;
+}
+
+const NoteRow = ({ note, categories, t, onOpen, onDelete, onCategory, onDragState, onHoverCategory }: NoteRowProps) => {
+  const controls = useDragControls();
+  const rowRef = useRef<HTMLDivElement>(null);
+  // Category chip under the pointer (chips carry data-cat). Works inside the shadow DOM via the row's own root.
+  const categoryAt = (info: { point: { x: number; y: number } }): string | null => {
+    const root = rowRef.current?.getRootNode() as Document | ShadowRoot | undefined;
+    const els = root?.elementsFromPoint?.(info.point.x - window.scrollX, info.point.y - window.scrollY) ?? [];
+    for (const el of els) {
+      const c = (el as HTMLElement).dataset?.cat;
+      if (c !== undefined) return c;
+    }
+    return null;
+  };
+  let host = '';
+  try { host = new URL(note.url).hostname.replace(/^www\./, ''); } catch {}
+  return (
+    <Reorder.Item
+      as="div"
+      ref={rowRef}
+      value={note}
+      onDragStart={() => onDragState(true)}
+      onDrag={(_, info) => onHoverCategory(categoryAt(info))}
+      onDragEnd={(_, info) => {
+        const c = categoryAt(info);
+        onDragState(false);
+        onHoverCategory(null);
+        if (c) onCategory(note.id, c);
+      }}
+      dragListener={false}
+      dragControls={controls}
+      whileDrag={{ scale: 0.96, opacity: 0.75, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 10 }}
+      className="relative flex gap-2 pl-3 pr-2 py-3 rounded-xl bg-[#151b27] hover:bg-[#1a2231] transition-colors overflow-hidden"
+    >
+      <span className="absolute left-0 inset-y-0 w-1" style={{ backgroundColor: note.color }} />
+      <div
+        onPointerDown={(e) => controls.start(e)}
+        title={t.dragHint}
+        aria-label={t.dragHint}
+        className="shrink-0 w-6 flex items-center justify-center text-slate-600 hover:text-slate-300 cursor-grab active:cursor-grabbing touch-none select-none"
+      >
+        <GripVertical size={16} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[14px] leading-snug text-white line-clamp-2 break-words">
+          {note.content || <span className="text-slate-500">{t.emptyNote}</span>}
+        </p>
+        <p className="mt-1.5 text-[11px] text-slate-500 truncate" title={note.urlTitle}>
+          <span className="text-cyan-400/90">{host || note.urlTitle}</span>
+          <span className="mx-1.5">·</span>
+          {new Date(note.timestamp).toLocaleDateString()}
+        </p>
+        <select
+          value={note.category ?? ''}
+          onChange={(e) => onCategory(note.id, e.target.value || undefined)}
+          aria-label={t.categoryLabel}
+          className="mt-2 max-w-full rounded-md bg-white/[0.06] px-1.5 py-1 text-[11px] text-slate-300 outline-none cursor-pointer hover:bg-white/10"
+        >
+          <option value="" className="bg-[#0d121c]">{t.noCategory}</option>
+          {categories.map((c) => (
+            <option key={c} value={c} className="bg-[#0d121c]">{c}</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex items-start gap-0.5 shrink-0">
+        <button
+          onClick={() => onOpen(note)}
+          title={t.goToFile}
+          aria-label={t.goToFile}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition-colors"
+        >
+          <ArrowRight size={16} />
+        </button>
+        <button
+          onClick={() => onDelete(note.id)}
+          title={t.deleteNote}
+          aria-label={t.deleteNote}
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+        >
+          <Trash size={15} />
+        </button>
+      </div>
+    </Reorder.Item>
+  );
 };
 
 const LANGUAGE_CODES: Record<Language, string> = {
@@ -267,6 +463,22 @@ const LANGUAGE_CODES: Record<Language, string> = {
   en: 'GB',
   es: 'ES',
   fr: 'FR',
+};
+
+const storageGet = (area: chrome.storage.StorageArea, keys: string[]) =>
+  new Promise<Record<string, any>>((resolve) => area.get(keys, resolve));
+
+// chrome.storage.sync caps one item at 8 KB, so notes live in storage.local. Users from older versions
+// (no 'note-store-local' flag yet) still get their data from sync once, which the next save moves to local.
+const readStored = async (): Promise<Record<string, any>> => {
+  const keys = ['note-overlay-data', 'note-lang', 'note-lang-chosen', 'note-categories', 'note-store-local'];
+  const local = await storageGet(chrome.storage.local, keys);
+  if (local['note-store-local']) return local;
+  try {
+    const sync = await storageGet(chrome.storage.sync, keys);
+    if (sync['note-overlay-data'] || sync['note-lang']) return sync;
+  } catch {}
+  return local;
 };
 
 export default function App() {
@@ -286,13 +498,37 @@ export default function App() {
     return path;
   };
 
-  const [lang, setLang] = useState<Language>('sv');
+  const [lang, setLang] = useState<Language>('en');
+  const langChosenRef = useRef(false);
+  const chooseLang = (l: Language) => {
+    langChosenRef.current = true;
+    setLang(l);
+    // persist right away: re-picking the active language would not change state, so the save effect would not run
+    try {
+      if (isExtension && chrome.runtime?.id) chrome.storage.local.set({ 'note-lang': l, 'note-lang-chosen': true });
+    } catch {}
+  };
+
+  // Fixed popup size so the layout does not jump when the language (text length) changes
+  useEffect(() => {
+    if (!isPopup) return;
+    for (const el of [document.documentElement, document.body]) {
+      el.style.width = '400px';
+      el.style.height = '600px';
+      el.style.overflow = 'hidden';
+    }
+  }, [isPopup]);
   const [notes, setNotes] = useState<NoteData[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [draggingNote, setDraggingNote] = useState(false);
+  const [hoverCategory, setHoverCategory] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentUrl, setCurrentUrl] = useState(window.location.href);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTabHost, setActiveTabHost] = useState<string | null>(null);
-  const [storageScope, setStorageScope] = useState<'sync' | 'local'>('local');
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importMessage, setImportMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showDanger, setShowDanger] = useState(false);
@@ -324,26 +560,16 @@ export default function App() {
     }
     try {
       if (!chrome.runtime?.id) return;
-      const get = (area: chrome.storage.StorageArea, keys: string[]) =>
-        new Promise<Record<string, any>>((resolve) => area.get(keys, resolve));
-      const keys = ['note-overlay-data', 'note-lang'];
-      const syncResult = await get(chrome.storage.sync, keys);
-      if (syncResult['note-overlay-data']) {
-        const parsed = syncResult['note-overlay-data'] as NoteData[];
-        const currentSerialized = JSON.stringify(notesRef.current);
-        const incomingSerialized = JSON.stringify(parsed);
-        if (currentSerialized !== incomingSerialized) setNotes(parsed);
-        if (syncResult['note-lang']) setLang(syncResult['note-lang'] as Language);
-        return;
+      const result = await readStored();
+      if (Array.isArray(result['note-categories'])) setCategories(result['note-categories']);
+      if (result['note-overlay-data']) {
+        const parsed = result['note-overlay-data'] as NoteData[];
+        if (JSON.stringify(notesRef.current) !== JSON.stringify(parsed)) setNotes(parsed);
       }
-      const localResult = await get(chrome.storage.local, keys);
-      if (localResult['note-overlay-data']) {
-        const parsed = localResult['note-overlay-data'] as NoteData[];
-        const currentSerialized = JSON.stringify(notesRef.current);
-        const incomingSerialized = JSON.stringify(parsed);
-        if (currentSerialized !== incomingSerialized) setNotes(parsed);
+      if (result['note-lang'] && result['note-lang-chosen']) {
+        langChosenRef.current = true;
+        setLang(result['note-lang'] as Language);
       }
-      if (localResult['note-lang']) setLang(localResult['note-lang'] as Language);
     } catch {}
   }, [isExtension]);
 
@@ -402,42 +628,13 @@ export default function App() {
       if (isExtension) {
         try {
           if (!chrome.runtime?.id) return;
-          const get = (area: chrome.storage.StorageArea, keys: string[]) =>
-            new Promise<Record<string, any>>((resolve) => area.get(keys, resolve));
-
-          const keys = ['note-overlay-data', 'note-lang'];
-          const syncResult = await get(chrome.storage.sync, keys);
+          const result = await readStored();
           if (cancelled) return;
-
-          if (syncResult['note-overlay-data'] || syncResult['note-lang']) {
-            if (syncResult['note-overlay-data']) setNotes(syncResult['note-overlay-data']);
-            if (syncResult['note-lang']) setLang(syncResult['note-lang'] as Language);
-            setStorageScope('sync');
-            setIsLoaded(true);
-            return;
-          }
-
-          const localResult = await get(chrome.storage.local, keys);
-          if (cancelled) return;
-          if (localResult['note-overlay-data']) setNotes(localResult['note-overlay-data']);
-          if (localResult['note-lang']) setLang(localResult['note-lang'] as Language);
-          const hasLocalData = !!(localResult['note-overlay-data'] || localResult['note-lang']);
-          if (hasLocalData) {
-            const set = (area: chrome.storage.StorageArea, items: Record<string, any>) =>
-              new Promise<void>((resolve, reject) =>
-                area.set(items, () => (chrome.runtime?.lastError ? reject(chrome.runtime.lastError) : resolve())),
-              );
-            try {
-              await set(chrome.storage.sync, {
-                'note-overlay-data': localResult['note-overlay-data'],
-                'note-lang': localResult['note-lang'],
-              });
-              setStorageScope('sync');
-            } catch {
-              setStorageScope('local');
-            }
-          } else {
-            setStorageScope('local');
+          if (Array.isArray(result['note-categories'])) setCategories(result['note-categories']);
+          if (result['note-overlay-data']) setNotes(result['note-overlay-data']);
+          if (result['note-lang'] && result['note-lang-chosen']) {
+            langChosenRef.current = true;
+            setLang(result['note-lang'] as Language);
           }
           setIsLoaded(true);
         } catch {
@@ -466,7 +663,7 @@ export default function App() {
         changes: Record<string, chrome.storage.StorageChange>,
         areaName: string,
       ) => {
-        if (areaName !== 'sync' && areaName !== 'local') return;
+        if (areaName !== 'local') return;
         if (changes['note-overlay-data']?.newValue !== undefined) {
           const incoming = changes['note-overlay-data'].newValue as NoteData[];
           const currentSerialized = JSON.stringify(notesRef.current);
@@ -475,7 +672,11 @@ export default function App() {
             setNotes(incoming);
           }
         }
+        if (Array.isArray(changes['note-categories']?.newValue)) {
+          setCategories(changes['note-categories'].newValue as string[]);
+        }
         if (changes['note-lang']?.newValue !== undefined) {
+          langChosenRef.current = true;
           setLang(changes['note-lang'].newValue as Language);
         }
       };
@@ -542,17 +743,11 @@ export default function App() {
               area.set(items, () => (chrome.runtime?.lastError ? reject(chrome.runtime.lastError) : resolve())),
             );
 
-          const payload = {
+          await set(chrome.storage.local, {
             'note-overlay-data': notes,
-            'note-lang': lang,
-          };
-
-          const primary = storageScope === 'sync' ? chrome.storage.sync : chrome.storage.local;
-          await set(primary, payload).catch(async () => {
-            if (storageScope !== 'local') setStorageScope('local');
-            try {
-              await set(chrome.storage.local, payload);
-            } catch {}
+            'note-categories': categories,
+            ...(langChosenRef.current ? { 'note-lang': lang, 'note-lang-chosen': true } : {}),
+            'note-store-local': true,
           });
         } catch {}
       } else {
@@ -578,7 +773,7 @@ export default function App() {
       window.removeEventListener('pagehide', flush);
       window.removeEventListener('beforeunload', flush);
     };
-  }, [notes, lang, isLoaded, isExtension, storageScope]);
+  }, [notes, categories, lang, isLoaded, isExtension]);
 
   const [menuPos, setMenuPos] = useState<{ x: number, y: number } | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -638,6 +833,7 @@ export default function App() {
   
   // States for the list window position and size
   const [listSize, setListSize] = useState({ width: 640, height: 760 });
+  const listSizeRef = useRef(listSize);
   const listResizeRef = React.useRef<HTMLDivElement>(null);
   const listDragControls = useDragControls();
 
@@ -693,6 +889,8 @@ export default function App() {
     if (v.anchorTag !== undefined && typeof v.anchorTag !== 'string') return false;
     if (v.anchorText !== undefined && typeof v.anchorText !== 'string') return false;
     if (v.isMinimized !== undefined && typeof v.isMinimized !== 'boolean') return false;
+    if (v.category !== undefined && typeof v.category !== 'string') return false;
+    if (v.order !== undefined && !isFiniteNumber(v.order)) return false;
     return true;
   };
 
@@ -762,8 +960,10 @@ export default function App() {
       }
 
       setNotes([]);
-      setLang('sv');
-      setStorageScope(isExtension ? 'sync' : 'local');
+      setCategories([]);
+      setActiveCategory(null);
+      langChosenRef.current = false;
+      setLang('en');
       setImportFile(null);
       setImportMessage(null);
       setShowDanger(false);
@@ -789,8 +989,8 @@ export default function App() {
       e.stopPropagation();
       startX = e.clientX;
       startY = e.clientY;
-      startWidth = listSize.width;
-      startHeight = listSize.height;
+      startWidth = listSizeRef.current.width;
+      startHeight = listSizeRef.current.height;
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     };
@@ -798,7 +998,8 @@ export default function App() {
     const onMouseMove = (e: MouseEvent) => {
       const newWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
       const newHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
-      setListSize({ width: newWidth, height: newHeight });
+      listSizeRef.current = { width: newWidth, height: newHeight };
+      setListSize(listSizeRef.current);
     };
 
     const onMouseUp = () => {
@@ -814,7 +1015,7 @@ export default function App() {
       document.removeEventListener('mouseup', onMouseUp);
       if (resizer) resizer.removeEventListener('mousedown', onMouseDown);
     };
-  }, [showAllNotes, showSettings, listSize.width, listSize.height]);
+  }, [showAllNotes, showSettings, showHelp]);
 
   // Removed old localStorage effects as they are now handled in the unified useEffect above
 
@@ -1044,7 +1245,8 @@ export default function App() {
   const bringToFront = (id: string) => {
     setNotes(prev => {
       const note = prev.find(n => n.id === id);
-      if (!note) return prev;
+      // already on top: skip, otherwise every click rewrites storage and changes the "Pinned" time
+      if (!note || prev.every((n) => n.id === id || n.timestamp < note.timestamp)) return prev;
       // Update timestamp to now to make it the "newest" (top) note
       return prev.map(n => n.id === id ? { ...n, timestamp: Date.now() } : n);
     });
@@ -1052,6 +1254,53 @@ export default function App() {
 
   const deleteNote = (id: string) => {
     setNotes(prev => prev.filter(n => n.id !== id));
+  };
+
+  const allCategories = Array.from(new Set([...categories, ...notes.map((n) => n.category).filter((c): c is string => !!c)]));
+  const visibleNotes = sortForList(notes).filter((n) => {
+    const q = searchTerm.toLowerCase();
+    return (
+      (activeCategory === null || n.category === activeCategory) &&
+      (n.content.toLowerCase().includes(q) || n.urlTitle.toLowerCase().includes(q))
+    );
+  });
+
+  // Reorder only the visible notes: they take the slots they already occupy in the full list.
+  const reorderVisible = (newVisible: NoteData[]) => {
+    setNotes((prev) => {
+      const ids = new Set(newVisible.map((n) => n.id));
+      let k = 0;
+      const merged = sortForList(prev).map((n) => (ids.has(n.id) ? newVisible[k++] : n));
+      const pos = new Map(merged.map((n, i) => [n.id, i]));
+      return prev.map((n) => ({ ...n, order: pos.get(n.id) }));
+    });
+  };
+
+  const addCategory = () => {
+    const name = newCategory.trim().slice(0, 24);
+    setNewCategory('');
+    setAddingCategory(false);
+    if (!name || allCategories.includes(name)) return;
+    setCategories((prev) => [...prev, name]);
+    setActiveCategory(name);
+  };
+
+  // Notes in a deleted category are kept, they just become uncategorised.
+  const deleteCategory = (name: string) => {
+    setCategories((prev) => prev.filter((c) => c !== name));
+    setNotes((prev) => prev.map((n) => (n.category === name ? { ...n, category: undefined } : n)));
+    setActiveCategory(null);
+  };
+
+  const openNote = (note: NoteData) => {
+    // Append a jump-hash so the target page can auto-scroll to this note
+    const jumpUrl = note.url + '#notepin-jump-' + note.id;
+    if (isExtension) {
+      window.open(jumpUrl, '_blank');
+    } else {
+      window.location.href = jumpUrl;
+    }
+    closeModal();
   };
 
   const closeModal = () => {
@@ -1073,7 +1322,7 @@ export default function App() {
               <div className="min-w-0">
                 <div className="text-white font-black text-3xl tracking-tight leading-tight flex items-center gap-3">
                   NotePin
-                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.6</span>
+                  <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg">v1.0.7</span>
                 </div>
                 <div className="text-slate-300/70 text-xs font-black tracking-[0.25em] uppercase">{t.settings}</div>
               </div>
@@ -1107,7 +1356,7 @@ export default function App() {
                   {(Object.keys(TRANSLATIONS) as Language[]).map((l) => (
                     <button
                       key={l}
-                      onClick={() => setLang(l)}
+                      onClick={() => chooseLang(l)}
                       className={`rounded-2xl border px-3 py-2 text-left transition-all ${
                         lang === l ? 'bg-cyan-500/20 border-cyan-500/50' : 'bg-white/5 border-white/10 hover:bg-white/10'
                       }`}
@@ -1345,13 +1594,13 @@ export default function App() {
   return (
     <div 
       className={`relative font-sans select-none transition-colors duration-500 ${
-        isPopup ? 'w-[400px] h-[600px] bg-[#0f172a] overflow-hidden' : isContentScript ? 'fixed inset-0 w-full h-full bg-transparent pointer-events-none' : 'w-full min-h-screen bg-[#0f172a]'
+        isPopup ? 'w-[400px] h-[600px] bg-[#0b0f17] overflow-hidden' : isContentScript ? 'fixed inset-0 w-full h-full bg-transparent pointer-events-none' : 'w-full min-h-screen bg-[#0f172a]'
       } ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
       onContextMenu={isContentScript ? undefined : handleContextMenu}
     >
       {!isExtension && <div className="absolute inset-0 mesh-bg z-0 pointer-events-none" />}
 
-      {(!isExtension || isPopup) && (
+      {!isExtension && (
         <div className="fixed top-0 left-0 right-0 z-[100] bg-slate-900/80 backdrop-blur-md border-b border-white/10">
           <div className="flex items-center gap-4 px-4 py-2">
             <div className="flex gap-1.5 shrink-0">
@@ -1382,78 +1631,79 @@ export default function App() {
       )}
 
       {isPopup && !showSettings && !showAllNotes && !showHelp && (
-        <div className="flex flex-col h-full p-6 pt-16 overflow-y-auto custom-scrollbar">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-24 h-24 flex items-center justify-center mb-4">
-              <img src={getAssetUrl('/icons/icon128.png')} className="w-full h-full object-contain drop-shadow-2xl" alt="Logo" />
+        <div className="flex flex-col h-full px-5 pt-5 pb-3 overflow-y-auto custom-scrollbar">
+          <div className="flex items-center gap-3">
+            <img src={getAssetUrl('/icons/icon48.png')} className="w-10 h-10 object-contain" alt="" />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-semibold text-white leading-tight">NotePin</h1>
+              <p className="text-xs text-slate-500">v1.0.7</p>
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tighter">NotePin</h1>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Version 1.0.6</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="glass p-4 rounded-2xl flex flex-col items-center text-center border border-white/5">
-              <span className="text-2xl font-black text-white">{notes.length}</span>
-              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Totalt sparade</span>
-            </div>
-            <div className="glass p-4 rounded-2xl flex flex-col items-center text-center border border-white/5">
-               <span className="text-2xl font-black text-cyan-400">
-                 {activeTabHost
-                   ? notes.filter(n => {
-                       try {
-                         return new URL(n.url).hostname === activeTabHost;
-                       } catch {
-                         return false;
-                       }
-                     }).length
-                   : 0}
-               </span>
-               <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Denna sajt</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.06] text-xs text-slate-300 font-medium">
+              {LANGUAGE_FLAGS[lang]}
+              {LANGUAGE_CODES[lang]}
             </div>
           </div>
 
-          <div className="space-y-3">
-            <button 
+          <div className="grid grid-cols-2 gap-3 mt-6">
+            <div className="rounded-2xl bg-white/[0.04] px-4 py-3.5">
+              <div className="text-3xl font-semibold text-white tabular-nums">{notes.length}</div>
+              <div className="text-xs text-slate-500 mt-0.5">{(t as any).statTotal}</div>
+            </div>
+            <div className="rounded-2xl bg-white/[0.04] px-4 py-3.5">
+              <div className="text-3xl font-semibold text-cyan-300 tabular-nums">
+                {activeTabHost
+                  ? notes.filter(n => {
+                      try {
+                        return new URL(n.url).hostname === activeTabHost;
+                      } catch {
+                        return false;
+                      }
+                    }).length
+                  : 0}
+              </div>
+              <div className="text-xs text-slate-500 mt-0.5">{(t as any).statSite}</div>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-white/[0.04] px-4 py-3.5 flex gap-3 items-start">
+            <MousePointer2 size={16} className="text-cyan-300 mt-0.5 shrink-0" />
+            <p className="text-[13px] leading-relaxed text-slate-300">{(t as any).firstRunTip}</p>
+          </div>
+
+          <div className="mt-5 space-y-1">
+            <button
               onClick={() => setShowAllNotes(true)}
-              className="w-full flex items-center justify-between p-4 glass rounded-2xl hover:bg-white/10 transition-all group border border-white/5"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.06] transition-colors group text-left"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                  <List size={20} />
-                </div>
-                <span className="text-white font-bold">{t.allNotes}</span>
-              </div>
-              <ArrowRight size={16} className="text-slate-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <span className="w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-slate-300 group-hover:text-white transition-colors">
+                <List size={18} />
+              </span>
+              <span className="flex-1 text-[15px] font-medium text-slate-100">{t.allNotes}</span>
+              <ArrowRight size={15} className="text-slate-600 group-hover:text-slate-300 transition-colors" />
             </button>
-
-            <button 
+            <button
               onClick={openSettingsWindow}
-              className="w-full flex items-center justify-between p-4 glass rounded-2xl hover:bg-white/10 transition-all group border border-white/5"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.06] transition-colors group text-left"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-500/20 border border-white/10 flex items-center justify-center text-slate-400 group-hover:bg-slate-500 group-hover:text-white transition-colors">
-                  <Globe size={20} />
-                </div>
-                <span className="text-white font-bold">{t.settings}</span>
-              </div>
-              <ArrowRight size={16} className="text-slate-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <span className="w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-slate-300 group-hover:text-white transition-colors">
+                <Globe size={18} />
+              </span>
+              <span className="flex-1 text-[15px] font-medium text-slate-100">{t.settings}</span>
+              <ArrowRight size={15} className="text-slate-600 group-hover:text-slate-300 transition-colors" />
             </button>
-
-            <button 
+            <button
               onClick={() => setShowHelp(true)}
-              className="w-full flex items-center justify-between p-4 glass rounded-2xl hover:bg-white/10 transition-all group border border-white/5"
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.06] transition-colors group text-left"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-                  <Info size={20} />
-                </div>
-                <span className="text-white font-bold">{t.help}</span>
-              </div>
-              <ArrowRight size={16} className="text-slate-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <span className="w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-slate-300 group-hover:text-white transition-colors">
+                <Info size={18} />
+              </span>
+              <span className="flex-1 text-[15px] font-medium text-slate-100">{t.help}</span>
+              <ArrowRight size={15} className="text-slate-600 group-hover:text-slate-300 transition-colors" />
             </button>
           </div>
 
-          <Footer />
+          <div className="mt-auto pt-4 text-center text-[11px] text-slate-600">NotePin · nRn World</div>
         </div>
       )}
 
@@ -1463,7 +1713,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center p-6 pointer-events-none"
+            className={`fixed inset-0 z-[200] flex items-center justify-center pointer-events-none ${isPopup ? 'bg-[#0b0f17]' : 'bg-slate-950/40 backdrop-blur-[2px] p-6'}`}
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
@@ -1473,24 +1723,24 @@ export default function App() {
               dragControls={listDragControls}
               dragListener={false}
               dragMomentum={false}
-              style={{ 
+              style={isPopup ? { width: '100%', height: '100%' } : {
                 width: listSize.width, 
                 height: listSize.height,
                 maxWidth: 'calc(100vw - 48px)',
                 maxHeight: 'calc(100vh - 48px)'
               }}
-              className="glass rounded-3xl shadow-2xl relative flex flex-col pointer-events-auto"
+              className={`relative flex flex-col pointer-events-auto ${isPopup ? 'bg-[#0b0f17]' : 'bg-[#0d121c] border border-white/10 rounded-3xl shadow-2xl'}`}
               onClick={e => e.stopPropagation()}
             >
               {/* Modal Header/Drag Handle */}
               <div 
-                onPointerDown={(e) => listDragControls.start(e)}
-                className="flex items-center justify-between px-6 py-4 bg-white/5 border-b border-white/5 cursor-move shrink-0 rounded-t-3xl"
+                onPointerDown={(e) => !isPopup && listDragControls.start(e)}
+                className={`flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0 ${isPopup ? '' : 'bg-white/5 cursor-move rounded-t-3xl'}`}
               >
                 <div className="flex items-center gap-2">
                   <GripHorizontal size={14} className="text-white/40" />
-                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">System Panel</span>
-                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.6</span>
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">NotePin</span>
+                  <span className="text-[9px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/30 ml-1">v1.0.7</span>
                 </div>
                 <button 
                   onClick={closeModal} 
@@ -1500,13 +1750,13 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-8 flex flex-col">
+              <div className={`flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col ${isPopup ? 'p-5' : 'p-8'}`}>
                 {showSettings ? (
                   <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <h2 className="text-3xl font-black text-white mb-3 flex items-center gap-3 tracking-tight">
                       <Globe className="text-cyan-400" />
                       {t.settings}
-                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.6</span>
+                      <span className="text-[11px] font-black bg-cyan-500/10 px-2 py-1 rounded-lg text-cyan-400 border border-cyan-500/20 shadow-lg ml-2 self-center">v1.0.7</span>
                     </h2>
                     <p className="text-slate-200/80 text-base leading-relaxed mb-6">
                       {t.settingsIntro}
@@ -1527,7 +1777,7 @@ export default function App() {
                           {(Object.keys(TRANSLATIONS) as Language[]).map((l) => (
                             <button
                               key={l}
-                              onClick={() => setLang(l)}
+                              onClick={() => chooseLang(l)}
                               className={`rounded-2xl border px-3 py-2 text-left transition-all ${
                                 lang === l
                                   ? 'bg-cyan-500/20 border-cyan-500/50'
@@ -1746,90 +1996,52 @@ export default function App() {
                   </div>
                 ) : showHelp ? (
                   <div className="flex-1 flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="shrink-0">
-                      <h2 className="text-3xl font-black text-white mb-4 flex items-center gap-3 tracking-tight">
-                        <Shield className="text-cyan-400" />
-                        {t.helpTitle}
-                      </h2>
-                      <div className="rounded-3xl bg-slate-950/50 border border-white/10 p-4">
-                        <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.25em] mb-3">
-                          {t.selectLanguage}
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                          {(Object.keys(TRANSLATIONS) as Language[]).map((l) => (
-                            <button
-                              key={l}
-                              onClick={() => setLang(l)}
-                              className={`rounded-2xl border px-3 py-2 text-left transition-all ${
-                                lang === l
-                                  ? 'bg-cyan-500/20 border-cyan-500/50'
-                                  : 'bg-white/5 border-white/10 hover:bg-white/10'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-base leading-none">{LANGUAGE_FLAGS[l]}</span>
-                                <span className={`text-xs font-black tracking-widest ${lang === l ? 'text-cyan-200' : 'text-white/70'}`}>
-                                  {LANGUAGE_CODES[l]}
-                                </span>
-                              </div>
-                              <div className={`mt-1 text-[11px] font-bold ${lang === l ? 'text-white' : 'text-white/70'}`}>
-                                {TRANSLATIONS[l].langName}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                    <div className="shrink-0 flex flex-col items-center text-center">
+                      <img src={getAssetUrl('/icons/icon128.png')} className="w-12 h-12 object-contain" alt="" />
+                      <h2 className="mt-2 text-xl font-semibold text-white tracking-tight">{(t as any).welcomeTitle}</h2>
+                      <p className="mt-1.5 text-sm text-slate-400 leading-relaxed max-w-[300px] min-h-[40px]">{(t as any).welcomeSub}</p>
                     </div>
 
-                    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 mt-5">
-                      <div className="mb-4 rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-4">
-                        <p className="text-cyan-100 text-sm font-bold leading-relaxed">
-                          {(t as any).firstRunTip ?? t.firstNoteHint}
-                        </p>
-                      </div>
-                      <div className="space-y-3">
-                        {helpSteps.map((s: any) => {
-                          const Icon =
-                            s.k === 'create'
-                              ? MousePointer2
-                              : s.k === 'write'
-                                ? StickyNote
-                                : s.k === 'organize'
-                                  ? Move
-                                  : s.k === 'share'
-                                    ? Share2
-                                    : Cloud;
-                          return (
-                            <div
-                              key={s.k}
-                              className="rounded-3xl border border-white/10 bg-slate-950/40 overflow-hidden"
-                            >
-                              <div className="p-4 flex gap-4 items-center">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/25 via-purple-500/15 to-pink-500/20 border border-white/10 flex items-center justify-center text-cyan-200 shrink-0">
-                                  <Icon size={26} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-baseline gap-2">
-                                    <div className="w-7 h-7 rounded-xl bg-white/5 border border-white/10 text-white/80 flex items-center justify-center font-black text-xs shrink-0">
-                                      {s.n}
-                                    </div>
-                                    <div className="text-white font-black text-lg leading-tight truncate">{s.t}</div>
-                                  </div>
-                                  <div className="mt-1 text-slate-50/90 text-base leading-snug">
-                                    {s.d}
-                                  </div>
-                                </div>
+                    <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar -mr-2 pr-2 mt-4 space-y-2">
+                      {helpSteps.filter((s: any) => s.k !== 'share').map((s: any, i: number) => {
+                        const Icon =
+                          s.k === 'create' ? MousePointer2 : s.k === 'write' ? StickyNote : s.k === 'organize' ? Move : s.k === 'share' ? Share2 : Lock;
+                        return (
+                          <div key={s.k} className="flex gap-3.5 items-start rounded-xl bg-white/[0.04] px-3.5 py-3 h-[100px] overflow-hidden shrink-0">
+                            <span className="w-9 h-9 rounded-lg bg-cyan-400/10 text-cyan-300 flex items-center justify-center shrink-0">
+                              <Icon size={18} />
+                            </span>
+                            <div className="min-w-0">
+                              <div className="text-[15px] font-medium text-white leading-tight">
+                                <span className="text-slate-500 mr-1.5 tabular-nums">{i + 1}.</span>{s.t}
                               </div>
+                              <div className="mt-1 text-[13px] leading-snug text-slate-400 line-clamp-3">{s.d}</div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    <div className="shrink-0 pt-5">
+                    <div className="shrink-0 pt-4 space-y-3">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {(Object.keys(TRANSLATIONS) as Language[]).map((l) => (
+                          <button
+                            key={l}
+                            onClick={() => chooseLang(l)}
+                            title={TRANSLATIONS[l].langName}
+                            aria-label={TRANSLATIONS[l].langName}
+                            className={`flex items-center justify-center gap-1.5 rounded-lg w-[72px] py-1.5 text-xs font-medium transition-colors ${
+                              lang === l ? 'bg-cyan-400/15 text-cyan-200 ring-1 ring-cyan-400/40' : 'bg-white/[0.05] text-slate-400 hover:bg-white/10'
+                            }`}
+                          >
+                            {LANGUAGE_FLAGS[l]}
+                            {LANGUAGE_CODES[l]}
+                          </button>
+                        ))}
+                      </div>
                       <button
                         onClick={closeModal}
-                        className="w-full rounded-3xl py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-slate-950 font-black text-lg tracking-tight shadow-[0_20px_60px_rgba(34,211,238,0.25)] hover:brightness-110 transition-all"
+                        className="w-full rounded-xl py-3 bg-cyan-400 text-slate-950 font-semibold text-[15px] hover:bg-cyan-300 transition-colors"
                       >
                         {helpCta}
                       </button>
@@ -1837,66 +2049,102 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="flex items-center justify-between mb-6 shrink-0">
-                      <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <List className="text-purple-400" />
-                        {t.allNotes}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5 shrink-0">
+                      <h2 className="text-xl font-semibold text-white flex items-center gap-2.5 min-w-0">
+                        <List className="text-purple-400 shrink-0" size={20} />
+                        <span className="truncate">{t.allNotes}</span>
+                        <span className="text-xs font-medium text-slate-500 tabular-nums">{notes.length}</span>
                       </h2>
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="relative w-full sm:w-auto">
                           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                           <input 
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Sök anteckningar..."
-                            className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-all w-40"
+                            placeholder={(t as any).searchPlaceholder}
+                            className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-all w-full sm:w-44"
                           />
                         </div>
                       </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
-                      {notes.length === 0 ? (
-                        <p className="text-slate-500 italic text-center py-8">{t.firstNoteHint}</p>
+                    <div className="flex flex-wrap items-center gap-1.5 mb-4 shrink-0">
+                      {[null, ...allCategories].map((c) => (
+                        <button
+                          key={c ?? '__all'}
+                          {...(c !== null ? { 'data-cat': c } : {})}
+                          onClick={() => setActiveCategory(c)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all max-w-[160px] truncate ${
+                            hoverCategory === c && c !== null
+                              ? 'bg-cyan-400 text-slate-950 ring-2 ring-cyan-200 scale-110'
+                              : activeCategory === c ? 'bg-cyan-400 text-slate-950' : 'bg-white/[0.06] text-slate-300 hover:bg-white/10'
+                          } ${draggingNote && c !== null ? 'ring-1 ring-dashed ring-cyan-300/60' : ''}`}
+                        >
+                          {c ?? (t as any).allCategory}
+                        </button>
+                      ))}
+                      {addingCategory ? (
+                        <input
+                          autoFocus
+                          value={newCategory}
+                          onChange={(e) => setNewCategory(e.target.value)}
+                          onBlur={addCategory}
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                            if (e.key === 'Enter') addCategory();
+                            if (e.key === 'Escape') { setNewCategory(''); setAddingCategory(false); }
+                          }}
+                          maxLength={24}
+                          placeholder={(t as any).categoryName}
+                          className="w-32 rounded-full bg-white/[0.06] border border-cyan-400/40 px-3 py-1.5 text-xs text-white outline-none"
+                        />
                       ) : (
-                        notes
-                          .filter(n => n.content.toLowerCase().includes(searchTerm.toLowerCase()) || n.urlTitle.toLowerCase().includes(searchTerm.toLowerCase()))
-                          .sort((a,b) => b.timestamp - a.timestamp)
-                          .map(note => (
-                          <div key={note.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl group hover:border-white/20 transition-colors">
-                            <p className="text-white text-sm mb-3 line-clamp-2 italic">"{note.content || '...'}"</p>
-                            <div className="flex items-center justify-between text-[10px]">
-                              <div className="flex flex-col gap-0.5">
-                                <span className="text-slate-500 uppercase font-bold tracking-tighter">SOURCE</span>
-                                <span className="text-cyan-400/80 font-medium truncate max-w-[150px]">{note.urlTitle}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <button 
-                                  onClick={() => deleteNote(note.id)}
-                                  className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all"
-                                  title="Ta bort"
-                                >
-                                  <Trash size={12} />
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    // Append a jump-hash so the target page can auto-scroll to this note
-                                    const jumpUrl = note.url + '#notepin-jump-' + note.id;
-                                    if (isExtension) {
-                                      window.open(jumpUrl, '_blank');
-                                    } else {
-                                      window.location.href = jumpUrl;
-                                    }
-                                    closeModal();
-                                  }}
-                                  className="p-2 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500 hover:text-white transition-all flex items-center gap-1 font-bold"
-                                >
-                                  {t.goToFile} <ArrowRight size={12} />
-                                </button>
-                              </div>
-                            </div>
+                        <button
+                          onClick={() => setAddingCategory(true)}
+                          title={(t as any).newCategory}
+                          aria-label={(t as any).newCategory}
+                          className="w-7 h-7 rounded-full bg-white/[0.06] text-slate-300 hover:bg-white/10 flex items-center justify-center transition-colors"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      )}
+                      {activeCategory !== null && (
+                        <button
+                          onClick={() => deleteCategory(activeCategory)}
+                          title={(t as any).deleteCategory}
+                          aria-label={(t as any).deleteCategory}
+                          className="ml-auto w-7 h-7 rounded-full text-slate-500 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center transition-colors"
+                        >
+                          <Trash size={13} />
+                        </button>
+                      )}
+                    </div>
+                    <div className={`flex-1 custom-scrollbar -mr-2 pr-2 ${draggingNote ? 'overflow-visible' : 'overflow-y-auto'}`}>
+                      {notes.length === 0 ? (
+                        <div className="flex flex-col items-center text-center gap-3 py-12 px-4">
+                          <div className="w-12 h-12 rounded-2xl bg-white/[0.05] flex items-center justify-center text-slate-500">
+                            <StickyNote size={22} />
                           </div>
-                        ))
+                          <p className="text-slate-400 text-sm leading-relaxed">{t.firstNoteHint}</p>
+                        </div>
+                      ) : visibleNotes.length === 0 ? (
+                        <p className="text-slate-500 text-sm text-center py-10">{(t as any).noNotesHere}</p>
+                      ) : (
+                        <Reorder.Group as="div" axis="y" values={visibleNotes} onReorder={reorderVisible} className="space-y-2.5">
+                          {visibleNotes.map((note) => (
+                            <NoteRow
+                              key={note.id}
+                              note={note}
+                              categories={allCategories}
+                              t={t}
+                              onOpen={openNote}
+                              onDelete={deleteNote}
+                              onCategory={(id, category) => updateNote(id, { category })}
+                              onDragState={setDraggingNote}
+                              onHoverCategory={setHoverCategory}
+                            />
+                          ))}
+                        </Reorder.Group>
                       )}
                     </div>
                   </div>
@@ -1906,6 +2154,7 @@ export default function App() {
               {/* Resize Handle for Modal */}
               <div 
                 ref={listResizeRef}
+                hidden={isPopup}
                 className="absolute bottom-0 right-0 w-8 h-8 cursor-nwse-resize z-[210] flex items-end justify-end p-2 group/resize"
                 onPointerDown={(e) => e.stopPropagation()}
               >
