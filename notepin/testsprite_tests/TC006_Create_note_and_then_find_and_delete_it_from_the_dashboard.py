@@ -41,7 +41,7 @@ async def run_test():
         
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        assert await frame.locator("xpath=//*[contains(., 'No notes found')]").nth(0).is_visible(), "The deleted note should no longer appear in the All Notes results after deletion."]}
+        assert await frame.locator("xpath=//*[contains(., 'No notes found')]").nth(0).is_visible(), "The deleted note should no longer appear in the All Notes results after deletion."
         await asyncio.sleep(5)
 
     finally:

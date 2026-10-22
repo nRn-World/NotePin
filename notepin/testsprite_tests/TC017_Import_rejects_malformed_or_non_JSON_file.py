@@ -38,7 +38,7 @@ async def run_test():
         
         # --> Assertions to verify final state
         frame = context.pages[-1]
-        assert await frame.locator("xpath=//*[contains(., 'Validation error')]").nth(0).is_visible(), "The import should display a validation error and reject the malformed file"]}
+        assert await frame.locator("xpath=//*[contains(., 'Validation error')]").nth(0).is_visible(), "The import should display a validation error and reject the malformed file"
         await asyncio.sleep(5)
 
     finally:
